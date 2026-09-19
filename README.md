@@ -39,11 +39,10 @@ Hosted on AWS: a private S3 bucket behind CloudFront (Origin Access Control), AC
 
 ## Deploy
 
-```bash
-npm run build
-aws s3 sync out/ s3://BUCKET --delete --exclude "*.html" --exclude "*.txt" --cache-control "public,max-age=31536000,immutable"
-aws s3 sync out/ s3://BUCKET --delete --exclude "*" --include "*.html" --include "*.txt" --cache-control "public,max-age=0,must-revalidate"
-aws cloudfront create-invalidation --distribution-id DIST_ID --paths "/*"
-```
+Pushing to `main` deploys: `.github/workflows/site.yml` checks, builds, syncs `out/` to S3 and invalidates CloudFront, signed in through a GitHub OIDC role that can only touch this site. A 06:00 (Melbourne) run redeploys daily.
 
-HTML and the `.txt` page payloads revalidate on every visit; everything else is content-hashed and cached for a year.
+HTML and the `.txt` page payloads revalidate on every visit; everything else is content-hashed and cached for a year. A replaced file in `public/media/` needs a new name.
+
+## NOT YET lines for live projects
+
+Ovela's and Agent-OS's NOT YET line comes from their own README, between `<!-- not-yet -->` and `<!-- /not-yet -->`, fetched at build time (`scripts/not-yet.ts`). Plain text, 3–60 characters; anything else keeps the line in `data/figures.ts`. The GitHub profile's cards read the same marker.

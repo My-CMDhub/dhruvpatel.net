@@ -2,6 +2,7 @@
 // Figures that appear only once live in their case page's MDX, next to their sentence.
 
 import { halfWidthPct, may10 } from './amountRules.ts'
+import live from './not-yet.json'
 
 // The 10 May rule's band on a 0.05 ETH order, measured by running the real rule (data/amountRules.ts).
 const mayPct = halfWidthPct(may10, '0.05')
@@ -58,7 +59,7 @@ export const scenes: Scene[] = [
     to: '0.9 s',
     ruler: { scale: 'linear', max: 4, unit: 's', from: 3.7, to: 0.9 },
     label: { status: 'measured', note: 'one call before, one after', href: '/work/ovela/#src-readme' },
-    notYet: 'as fast when a tool runs · 1.1–1.7 s',
+    notYet: (live as Record<string, string>).ovela ?? 'as fast when a tool runs · 1.1–1.7 s',
     ledger: [
       { tag: 'SAW', text: 'The first reply of each call was the slowest, well over a second behind the rest.', value: '3.7 s', sub: 'first reply' },
       { tag: 'SAW', text: 'Two causes: a cold first model call, and a lookup that could only say “ask who is calling”.', value: '12 / 15', sub: 'replays wasted a lookup' },
@@ -77,7 +78,7 @@ export const scenes: Scene[] = [
     to: '5 ms',
     ruler: { scale: 'log', from: 2864, to: 5 },
     label: { status: 'measured', note: 'median of 5 · log scale', href: '/work/agent-os/#src-readme' },
-    notYet: 'a model driving it · its actions are hand-written for now',
+    notYet: (live as Record<string, string>)['agent-os'] ?? 'a model driving it · its actions are hand-written for now',
     ledger: [
       { tag: 'SAW', text: 'Requests ran on the main thread, so one slow action held up everything behind it.', value: '8,520 ms', sub: 'stalls in one planner run' },
       { tag: 'CHANGED', text: 'Requests moved off the main thread.', value: '2.8 ms', sub: 'longest stall after' },

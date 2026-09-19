@@ -1,0 +1,32 @@
+# Checks and builds every push. On main it also deploys, and a morning run picks up any
+# NOT YET line changed in the Ovela or Agent-OS README. AWS access is a short-lived role
+# (GitHub OIDC) that can only write this bucket and invalidate this distribution.
+name: site
+on:
+  push:
+  pull_request:
+  schedule: [{ cron: '0 20 * * *' }] # 06:00 in Melbourne (AEST)
+  workflow_dispatch:
+concurrency: { group: site-${{ github.ref }}, cancel-in-progress: false }
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions: { contents: read, id-token: write }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version-file: .nvmrc, cache: npm }
+      - run: npm ci
+      - run: npm run check
+      - run: npm run build
+      - if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::679607640499:role/dhruvpatel-net-deploy
+          aws-region: ap-southeast-2
+      - if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        name: deploy
+        run: |
+          aws s3 sync out/ s3://dhruvpatel-net-site --delete --exclude "*.html" --exclude "*.txt" --cache-control "public,max-age=31536000,immutable"
+          aws s3 sync out/ s3://dhruvpatel-net-site --delete --exclude "*" --include "*.html" --include "*.txt" --cache-control "public,max-age=0,must-revalidate"
+          aws cloudfront create-invalidation --distribution-id ET9C9KS24OXHW --paths "/*"

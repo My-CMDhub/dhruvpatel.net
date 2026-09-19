@@ -6,10 +6,12 @@
     "node": ">=20"
   },
   "scripts": {
+    "predev": "node scripts/not-yet.ts",
     "dev": "next dev",
+    "prebuild": "node scripts/not-yet.ts",
     "build": "next build",
     "start": "npx serve out",
-    "check": "node data/amountRules.check.ts && node data/approvalRules.check.ts"
+    "check": "node data/amountRules.check.ts && node data/approvalRules.check.ts && node data/notYet.check.ts"
   },
   "dependencies": {
     "@mdx-js/loader": "^3.1.0",
