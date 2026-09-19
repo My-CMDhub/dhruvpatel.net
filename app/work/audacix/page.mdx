@@ -3,7 +3,7 @@ export const metadata = { title: 'Audacix', description: "A security product's a
 <CaseHead
   title="Audacix"
   result="An assistant that explains a user's own security scan, running on a locally hosted model chosen for the hardware it had to run on."
-  meta="Full-Stack Developer intern · Jul–Oct 2025 · Django, PostgreSQL, AWS Lambda, vLLM, Qwen 2.5 · the assistant is still live in the Cyber Chief scanner"
+  meta="Full-Stack Developer intern · Jul–Oct 2025 · Django, PostgreSQL, AWS, vLLM, Qwen 2.5, Guardrails AI · the assistant is still live in the Cyber Chief scanner"
   links={[{ text: 'Run a scan', href: 'https://scan.cyberchief.ai/noSSL/' }]}
 />
 
@@ -13,23 +13,52 @@ export const metadata = { title: 'Audacix', description: "A security product's a
 
 ### Choosing the model on the real constraint
 
-The product already ran Llama 3 at 4-bit. I compared it with Qwen 2.5 7B at 8-bit, and Qwen won on every axis we cared about: it followed the assistant's instructions and output format, it stayed within the guardrails, it gave better quality for the GPU memory, and it was faster. Llama had been given a 12k context window. For Qwen I set a smaller one deliberately, to leave memory headroom on the available compute, and tuned vLLM's settings for latency.
+The assistant ran on Llama 3.1 8B, quantised to 4-bit, on a single 16 GB GPU. That GPU was the constraint, so the first filter was arithmetic: at full 16-bit precision, neither Llama 3.1 8B, Qwen 2.5 7B nor a DeepSeek R1 distill of the same size loads with room left to answer anyone.
 
-<L s="first-hand" n="no recorded numbers" src="account" />
+<div className="tw">
+<table className="fit">
+<thead><tr><th>Model</th><th>Weights</th><th>On a 16 GB GPU</th><th>Room for context</th></tr></thead>
+<tbody>
+<tr><td>Llama 3.1 8B · 16-bit</td><td>16.1 GB</td><td className="no">doesn't fit</td><td>–</td></tr>
+<tr><td>Qwen 2.5 7B · 16-bit</td><td>15.2 GB</td><td className="no">doesn't fit</td><td>–</td></tr>
+<tr><td>DeepSeek R1 distill 7B · 16-bit</td><td>15.2 GB</td><td className="no">doesn't fit</td><td>–</td></tr>
+<tr><td>Qwen 2.5 14B · 4-bit</td><td>10.0 GB</td><td className="edge">barely</td><td>≈ 13k tokens</td></tr>
+<tr><td>Llama 3.1 8B · 8-bit</td><td>≈ 9 GB</td><td>fits</td><td>≈ 26k tokens</td></tr>
+<tr><td>Llama 3.1 8B · 4-bit <small>before</small></td><td>5.7 GB</td><td>fits</td><td>≈ 52k tokens</td></tr>
+<tr className="won"><td>Qwen 2.5 7B · 8-bit <small>chosen</small></td><td>8.9 GB</td><td>fits</td><td>≈ 63k tokens</td></tr>
+</tbody>
+</table>
+</div>
+
+<p className="cap"><L s="source" n="weights: published sizes on Hugging Face · room: arithmetic, not measured" src="fit" /></p>
+
+The surprise is the last two rows. Qwen at 8-bit has bigger weights than Llama at 4-bit, yet leaves more room for context: its memory per token of context is less than half Llama's, with 4 key-value heads to Llama's 8 and 28 layers to 32. Better precision cost us no context.
+
+I stress-tested the ones that fit. The 14B loaded but barely ran. Among the rest we ranked latency first, then how well the model stayed inside the assistant's scope and followed its output format, then how it handled the code and reasoning that web-security questions need. Qwen 2.5 7B at 8-bit won on all three. I made the switch in October 2025, set its context window deliberately smaller than the room it had, to keep memory headroom, and tuned vLLM's settings for latency.
+
+So that speed was measured rather than felt, the assistant logs time to first token and tokens per second on every answer.
+
+<L s="first-hand" n="stress tests from memory · the written results stayed with Audacix" src="account" />
+
+### Guarding a stream without new compute
+
+The model is treated as untrusted. A jailbreak check runs on every question before anything is generated, and the answer is checked for jailbreaks and for staying on web security before the user sees it.
+
+The catch: the open-source guardrails framework we used checked a finished answer, not a stream. Waiting for the whole answer meant a blank screen, and on the CPU we had, the topic check took tens of seconds per answer. A GPU for the checks was the obvious fix, and it wasn't coming soon.
+
+So I streamed the answer and checked it in pieces. Text is held back until a few sentences are complete, which gives the small classifier models enough context to judge. Each piece is checked in the background while the next one streams, and the stream stops the moment a piece fails. People see an answer start almost at once. The trade-off, chosen on purpose: a violation can surface a sentence or two in, rather than never being shown at all.
+
+Before release I ran it against more than 140 adversarial prompts, from prompt injection and role-play to emotional manipulation and multi-step attacks, and checked each refusal held.
+
+<L s="first-hand" n="pass rates not recorded" src="account" />
 
 ### Not reaching for a vector database
 
 The assistant answers questions about *this* user's scan. That data was already structured in the database, and the general knowledge it needed was small and predictable. So context came straight from the scan records and a small fixed knowledge base. A vector store would have been one more service to run and keep in sync, for a worse answer: similar documents instead of the exact scan.
 
-### The model is treated as untrusted
-
-The assistant refuses anything outside web security and the user's scan, detects jailbreak and "ignore your instructions" attempts, and filters toxic output before it reaches the user. I ran a set of adversarial prompts before release and checked each refusal held.
-
-<L s="first-hand" n="prompt set not published" src="account" />
-
 ### Debugging past my own component
 
-Users were waiting more than five minutes for an SSL/TLS result that never arrived. The scan wasn't slow; it had never started. I traced it through the background job to a Lambda that was never invoked, wired the call, and the result returned.
+Users on the scanner's no-SSL path waited more than five minutes for an SSL/TLS result that never arrived. The scan wasn't slow; it had never started. That path marked the request complete without ever queuing an SSL scan. I made it queue a linked background SSL scan and put its result on the report when it finishes.
 
 ## What stands
 
@@ -43,12 +72,13 @@ Still in the live product, although some layouts have changed since:
 
 ## What this can't show
 
-- The code belongs to Audacix and isn't public. Everything here is my account, except the assistant, which anyone can see by running a scan, as in the recording above.
-- The model comparison and the guardrail tests weren't recorded as numbers I can publish.
+- The code belongs to Audacix and isn't public, so this page describes decisions, not code. What I could check against the code, I did. The assistant itself anyone can see by running a scan, as in the recording above.
+- My stress tests and the model comparison were written up for Audacix and stayed there; what's above is the arithmetic anyone can redo, and my account of the rest.
 
 ## Sources
 
 <ul className="sources">
-  <Src id="account">My own account of the internship; the code is Audacix's.</Src>
+  <Src id="account">My own account of the internship, checked against the code where I could. The code is Audacix's and isn't public.</Src>
+  <Src id="fit">Model weights: the published file sizes on Hugging Face for each model and precision (Llama 3.1 8B at 8-bit is computed, as 1 byte per weight plus 16-bit embeddings). Room for context: about 12.5 GB usable after runtime overhead, minus the weights, divided by the model's key-value cache per token (Llama 3.1 8B 128 KB, Qwen 2.5 7B 56 KB, Qwen 2.5 14B 192 KB, at 16-bit). It is shared by everyone asking at once.</Src>
   <Src id="live" href="https://scan.cyberchief.ai/noSSL/">The live scanner, where the assistant runs on the scan results</Src>
 </ul>

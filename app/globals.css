@@ -145,6 +145,14 @@ a.lbl:hover { border-bottom-style: solid; }
 .case code { font: .88em var(--f-mono); }
 .case em { font-family: var(--f-serif); }
 .sources { font-size: 15px; color: var(--muted); }
+.case .tw { overflow-x: auto; margin: 22px 0 6px; }
+.fit { border-collapse: collapse; width: 100%; min-width: 520px; font-size: 14.5px; font-variant-numeric: tabular-nums; }
+.fit th { font: 500 11px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); text-align: left; padding: 0 12px 8px 0; border-bottom: 1.5px solid var(--ink); }
+.fit td { padding: 9px 12px 9px 0; border-bottom: 1px solid var(--rule); color: var(--ink2); }
+.fit td:first-child { color: var(--ink); }
+.fit small { font: 500 10.5px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-left: 6px; }
+.fit .no { color: var(--wd); } .fit .edge { color: var(--prov); }
+.fit .won td { color: var(--b); font-weight: 600; } .fit .won small { color: var(--b); }
 .sources li:target { color: var(--ink); background: color-mix(in srgb, var(--b) 12%, transparent); }
 .media { margin: 36px 0 0; }
 .media video, .media img { display: block; width: 100%; height: auto; border: 1px solid var(--rule); background: #000; }
