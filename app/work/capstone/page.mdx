@@ -1,0 +1,94 @@
+import { repo, scenes } from '@/data/figures'
+
+export const metadata = { title: 'Capstone', description: 'An HD-wallet Ethereum payment gateway for a real client. Overall Team Winner, Melbourne Institute of Technology IMPACT 2025.' }
+export const s = scenes.find((x) => x.slug === 'capstone')
+
+<CaseHead
+  title="Capstone"
+  result="Overall Team Winner at Melbourne Institute of Technology's IMPACT 2025 capstone showcase, for a payment gateway built for a real client, Skill Sync, that gives every payment its own address."
+  meta="Lead decision-maker and main implementer · team of five, then three · 64 of 75 commits across all branches mine (5 through the Aider coding assistant) · Node.js, Web3.js, Infura, React/TypeScript · Sepolia testnet"
+  links={[{ text: 'Source', href: repo.capstone }, { text: 'Demo', href: 'https://cryptogate.vercel.app' }]}
+/>
+
+<Media src="/media/capstone-demo.mp4" poster="/media/capstone-demo.jpg" alt="Demo: an ETH checkout on Sepolia, paid from MetaMask, confirmed on the merchant dashboard" caption="From the team's demo, recorded May 2025. I present the checkout and the payment; Vladimir shows the merchant releasing the funds." />
+
+## How it was earned
+
+### The ambiguity
+
+The client's brief was one line of goal: *"a secure and universal payment gateway using blockchain"*, applicable to both client-server and peer-to-peer networks, integrated with PayPal or Stripe. Our first-semester plan answered it with everything: custom smart contracts in Solidity, crypto exchange, two-factor admin, 99.99% uptime and a dedicated wallet server.
+
+<L s="source" n="client proposal · first-semester plan" src="docs" />
+
+### What I cut: the part we couldn't take back
+
+By the build semester two of five had left, and the plan was still sized for five. The riskiest item in it was the smart contracts. Once deployed, a contract can't be changed; it carries its own operational load; and none of us had the expertise to be sure we'd get it right the first time. Nothing in the client's need required one. So we chose the deterministic approach, an option we could still fix after we shipped it.
+
+### What I kept
+
+What the system kept is the part that answers the client's real need: a hierarchical-deterministic wallet (BIP39/BIP32) that derives a fresh address for every payment, so each payment matches its order without a shared address. A backend I wrote in Web3.js owns the whole flow: generate the address, watch the chain through Infura, store the funds, and release them to the merchant with a signed transaction. Keys are stored encrypted with AES-256-CBC. Stripe sits alongside for card payments.
+
+<L s="source" n="detailed design · git" src="repo" />
+
+### Shown early, not late
+
+Vladimir organised the client meetings; I brought a working prototype to them and used it to settle requirements with the least back-and-forth. The first one went in front of the client in the first weeks of the build semester: a unique address with a QR code, funds arriving in the HD wallet, and the merchant releasing them. The client later wrote that *"the unique address feature significantly reduced our transaction costs."*
+
+<L s="source" n="individual report · poster" src="docs" />
+
+### What broke: the wallet forgot where its own money was
+
+Each payment address is derived from one secret at a numbered position (its *index*). The system saved each address with its index, and when funds had to be released it re-derived the key from that saved index. Where the saved index was wrong or missing (the code fell back to 0), it derived a *different* key, so it couldn't sign for money that was sitting at a real address. I wrote a repair that re-derives the first 21 positions from the secret, rebuilds the true address → index map and corrects the stored records. The release path now re-derives every stored address and checks it matches before trusting it, and it falls back across five network providers if one is down.
+
+<L s="source" n="fix-derivation-indexes.js · recover-and-release.js" src="derivation" />
+
+### The first amount check let wrong payments through
+
+<InvoiceDemo />
+
+<Ledger rows={s.ledger} />
+
+<L s="source" n="git history of the amount check · 14 Apr → 15 Apr → 10 May 2025" src="amount" />
+
+A mismatched payment is recorded, and its address is retired and kept out of the funds the merchant can release. The customer is told the order won't be processed.
+
+The demo shows why the margin sits at six decimals rather than exact. The checkout asked for 0.00181982 ETH, but a wallet can't easily send eight decimals, so the payer sent 0.00182. The gateway accepted it, and the merchant later released 0.001818 ETH after the network fee. An exact match would have rejected an honest payment; the old 0.5% margin would have accepted a short one.
+
+<L s="source" n="demo video 00:46–01:30" src="video" />
+
+### New payments never share an address with money already in it
+
+Before assigning an address, the gateway scans ahead, up to 1,000 positions, for one with a zero balance, so every payment can be told apart on the chain.
+
+<L s="source" n="paymentController.js" src="controller" />
+
+## What stands
+
+- A working gateway the judges and client used.
+- Overall Team Winner at IMPACT 2025.
+- Supervisor on the poster: *"An innovative approach to secure Ethereum transactions with excellent implementation."*
+
+## What it doesn't do
+
+Stated in our own final presentation:
+
+- no smart contracts, and no refunds;
+- ETH only, on the Sepolia testnet;
+- untested with wallets other than MetaMask;
+- never security-audited.
+
+And from the code:
+
+- A wrong payment is refused, not refunded. The money stays at the retired address.
+- The amount check has no automated tests, and it still compares floating-point numbers rather than exact integer wei. The first version, on 14 April, did compare exact wei; the fix that made it fail closed also moved it to floating point.
+- Found on re-reading the code for this page: two code paths still choose the next address position in different ways, so the check before each release, not the creation step, is what protects the funds.
+
+## Sources
+
+<ul className="sources">
+  <Src id="repo" href={repo.capstone}>The repository</Src>
+  <Src id="amount" href={`${repo.capstone}/commits/main/server/utils/web3Utils.js`}>History of the amount check (isPaymentAmountCorrect)</Src>
+  <Src id="derivation" href={`${repo.capstone}/blob/main/fix-derivation-indexes.js`}>fix-derivation-indexes.js, and recover-and-release.js beside it</Src>
+  <Src id="controller" href={`${repo.capstone}/blob/main/server/controllers/paymentController.js`}>paymentController.js</Src>
+  <Src id="docs">Course documents: the client proposal, both semester plans, my individual report and the poster. Not public.</Src>
+</ul>

@@ -1,0 +1,72 @@
+import { repo, scenes } from '@/data/figures'
+
+export const metadata = { title: 'Ovela', description: 'A voice receptionist on a real phone line, built around the parts of a call that usually go wrong.' }
+export const s = scenes.find((x) => x.slug === 'ovela')
+
+<CaseHead
+  title="Ovela"
+  result="A voice receptionist on a real phone line. It answers in 0.55–0.71 s when no tool is needed, and it's built around the parts of a call that usually go wrong."
+  label={{ status: 'measured', note: '6 days, 12–51 turns each', href: '#src-readme' }}
+  meta="Personal project · no customers; every call is my own test call · Python, FastAPI, asyncio, Twilio, Deepgram Flux, gpt-4.1-nano, Cartesia, Appwrite, Next.js · 1,922 tests"
+  links={[{ text: 'Source', href: repo.ovela }, { text: 'ovela.dev', href: 'https://ovela.dev' }]}
+/>
+
+## How it was earned
+
+### A "yes" isn't agreement to everything
+
+The booking tool trusted a flag the model filled in to say the summary had been read back. In 4 of 7 attempts it claimed a confirmation the caller never gave; in one, a "yes" to an email spelling booked a room. The gate now reads the transcript: a name, price and dates spoken by the agent, followed by the caller agreeing to *that*.
+
+<L s="measured" n="7 attempts" src="readme" />
+
+### A prompt rule is not a boundary
+
+With the guest's name in the prompt behind a "do not reveal" rule, the agent volunteered it on the first turn in 4 of 5 replays. Now the lookup tool withholds the name, and code releases it only after identity is confirmed: 0 of 5. Four actions are gated in code the same way; tone stays in the prompt.
+
+<L s="measured" n="5 replays" src="readme" />
+
+### My own instrument was lying
+
+The trace reader read one 100-row page and labelled it with the whole period I'd asked for. It reported a 3× slowdown that never happened, and it had also produced a "27% faster" claim, which I withdrew. Fixed and split by turn type, the honest picture is this: replies with no tool were already inside budget, and replies with a tool were not. The real win came from a per-call cache: a repeat booking lookup went from 1,073 ms to 0.4 ms.
+
+<L s="withdrawn" n="replaced by the per-turn-type figures" src="readme" /> · <L s="measured" n="15 → 21 lookups" src="readme" />
+
+### Re-measuring, even when the answer was convenient
+
+Models are benchmarked under the production prompt (~8,900 tokens, 12 tools), never on a bare "hello". Re-run in September, the two candidates were equal on speed, so the earlier finding that separated them no longer held. `gpt-4.1-nano` stays on cost, and any switch would now need a scored behaviour evaluation, not a latency number.
+
+### What did the caller actually hear?
+
+Text is generated faster than it's spoken. When a caller cuts in, the model has "said" words the caller never heard. Ovela keeps only the part that played, estimated from the audio Twilio confirms it delivered. And "mhmm" isn't an interruption.
+
+<L s="measured" n="interruptions caught up to 6.5 s into an answer · 6 interruptions" src="readme" />
+
+### The slowest reply was the first one
+
+<Ledger rows={s.ledger} />
+
+### Silence while a tool runs
+
+When the model reached for a tool, the caller heard nothing for 2.3–4.3 s. Now code says a short line first ("Let me have a look."), and the first words arrive in 0.7–0.8 s. The answer itself still waits on the tool; the silence is gone.
+
+<L s="measured" n="4 tool turns before, 2 after" src="readme" />
+
+## What stands
+
+- No-tool replies in 0.55–0.71 s.
+- Identity: 24 of 28 real guests found from misheard details, 0 of 8 non-guests invented, 0 wrong guest.
+- Four actions gated in code.
+- 1,922 tests.
+
+## What it still doesn't do
+
+- **Tool replies take {s.ledger.at(-1).value}.** The remaining latency is the tool round trip, not the model.
+- **Identity is confirmed on one matching word of the name**, so a relative sharing the surname passes.
+- **Gates judge agreement from word patterns**, so an unusual "yes" can be refused.
+- **One tenant, no real customers.**
+
+## Sources
+
+<ul className="sources">
+  <Src id="readme" href={`${repo.ovela}#readme`}>Ovela README: the results table (each before/after row is one call each side) and known limits</Src>
+</ul>

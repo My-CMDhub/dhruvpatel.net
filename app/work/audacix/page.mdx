@@ -1,0 +1,54 @@
+export const metadata = { title: 'Audacix', description: "A security product's assistant, on a local model chosen for the hardware it had to run on." }
+
+<CaseHead
+  title="Audacix"
+  result="An assistant that explains a user's own security scan, running on a locally hosted model chosen for the hardware it had to run on."
+  meta="Full-Stack Developer intern · Jul–Oct 2025 · Django, PostgreSQL, AWS Lambda, vLLM, Qwen 2.5 · the assistant is still live in the Cyber Chief scanner"
+  links={[{ text: 'Run a scan', href: 'https://scan.cyberchief.ai/noSSL/' }]}
+/>
+
+<Media src="/media/audacix-demo.mp4" poster="/media/audacix-demo.jpg" alt="The Cyber Chief scanner checking ovela.dev, then its assistant answering a Content Security Policy question and blocking two attempts to misuse it" caption="Recorded September 2026 on the public scanner, against my own site. The assistant is the part I built; the scanner around it is the team's." />
+
+## How it was earned
+
+### Choosing the model on the real constraint
+
+The product already ran Llama 3 at 4-bit. I compared it with Qwen 2.5 7B at 8-bit, and Qwen won on every axis we cared about: it followed the assistant's instructions and output format, it stayed within the guardrails, it gave better quality for the GPU memory, and it was faster. Llama had been given a 12k context window. For Qwen I set a smaller one deliberately, to leave memory headroom on the available compute, and tuned vLLM's settings for latency.
+
+<L s="first-hand" n="no recorded numbers" src="account" />
+
+### Not reaching for a vector database
+
+The assistant answers questions about *this* user's scan. That data was already structured in the database, and the general knowledge it needed was small and predictable. So context came straight from the scan records and a small fixed knowledge base. A vector store would have been one more service to run and keep in sync, for a worse answer: similar documents instead of the exact scan.
+
+### The model is treated as untrusted
+
+The assistant refuses anything outside web security and the user's scan, detects jailbreak and "ignore your instructions" attempts, and filters toxic output before it reaches the user. I ran a set of adversarial prompts before release and checked each refusal held.
+
+<L s="first-hand" n="prompt set not published" src="account" />
+
+### Debugging past my own component
+
+Users were waiting more than five minutes for an SSL/TLS result that never arrived. The scan wasn't slow; it had never started. I traced it through the background job to a Lambda that was never invoked, wired the call, and the result returned.
+
+## What stands
+
+Still in the live product, although some layouts have changed since:
+
+- the assistant, on the scan results;
+- the SSL/TLS scan fix;
+- the certification offered to sites that score 4+ out of 7;
+- technology detection (WebAnalyze) and JavaScript vulnerability detection (RetireJS);
+- security headers and frontend changes.
+
+## What this can't show
+
+- The code belongs to Audacix and isn't public. Everything here is my account, except the assistant, which anyone can see by running a scan, as in the recording above.
+- The model comparison and the guardrail tests weren't recorded as numbers I can publish.
+
+## Sources
+
+<ul className="sources">
+  <Src id="account">My own account of the internship; the code is Audacix's.</Src>
+  <Src id="live" href="https://scan.cyberchief.ai/noSSL/">The live scanner, where the assistant runs on the scan results</Src>
+</ul>

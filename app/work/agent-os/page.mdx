@@ -1,0 +1,74 @@
+import { repo, scenes } from '@/data/figures'
+
+export const metadata = { title: 'Agent-OS', description: 'A harness a model can operate a Mac through, where local code decides whether an action happens.' }
+export const s = scenes.find((x) => x.slug === 'agent-os')
+
+<CaseHead
+  title="Agent-OS"
+  result="A harness a model can operate a Mac through. Local code decides whether an action happens, and an action only counts as done when the app is seen to react."
+  meta="Fork of farzaa/clicky · 61 of 81 commits and 27 of 52 Swift files are mine · Swift, macOS Accessibility API · 217 unit tests · open source"
+  links={[{ text: 'Source', href: repo.agentOs }]}
+/>
+
+## How it was earned
+
+### I assumed structure would be cheaper than pixels
+
+I started reading the accessibility tree instead of screenshots to save tokens. I measured it, and the screenshot was cheaper: 1,519 tokens against ~1,966 on System Settings. I kept the tree anyway, for a better reason. That same screen exposes 165 elements that can be pressed, verified and waited on, and a screenshot exposes none. The tree stays a local index that the model never has to see.
+
+<L s="measured" n="one screen" src="readme" />
+
+### I assumed a success code meant something happened
+
+macOS returned success on every write I measured, including writes that changed nothing, and reading the value back was wrong in both directions. So the verifier's contract became "the app was seen to react", never "the call returned success". The planner tests are graded by a separate checker that reads the screen, and they assert which step actually ran.
+
+### Approval took four designs; each was broken by testing the one before
+
+1. A `confirmed: true` flag could be written by any caller, so approval became a one-time ticket.
+2. Another process pressed Allow through the accessibility API in ~10 ms, so Allow now counts only from a hardware input event.
+3. "Always" rules lived in a file any process could edit, so they moved to the Keychain.
+4. The selection could change between approval and action, so the ticket now records what was selected. A stale ticket is refused in 3 ms.
+
+<L s="measured" n="n=1" src="readme" />
+
+<ApprovalDemo />
+
+### Check order turned out to be a safety rule
+
+Finder's *Empty Bin* is disabled when the bin is empty, so checking "enabled" first gave *try again later* where the answer should have been *never*. The never-list now runs before everything except the password-field refusal.
+
+### Fixing performance removed a guard I hadn't designed
+
+<Ledger rows={s.ledger} />
+
+<L s="measured" n="stalls: 1 run · ping: n=5" src="readme" />
+
+### One of my own numbers was an artefact of my measuring
+
+"76 of Chrome's 158 elements share a name" was mostly my tree walk reading Chrome's tab strip four times. Deduplicating by element identity took that to 5 shared-name groups, and the retraction is in commit `6488e06`.
+
+<L s="withdrawn" n="replaced by 15% → 66% uniquely addressable" src="6488e06" />
+
+## What stands
+
+- A 14-verb interface over a Unix socket.
+- A kernel that refuses irreversible actions outright.
+- Approval that only a hardware click can give.
+- 217 unit tests.
+- Planner tests passing 6/6 on two consecutive runs (Finder and System Settings only). <L s="measured" n="2 runs" src="readme" />
+
+## What it still doesn't do
+
+- **No model drives it yet.** The planner's intents are hand-written.
+- **Risky actions are recognised by English words in button titles**, so "Place order" is allowed as an ordinary press.
+- **A hardware click proves a device, not a person.**
+- **Nothing reverses a click.**
+- **The voice loop doesn't exist yet.** Both candidate voice stacks were benchmarked, and neither met its latency target.
+
+## Sources
+
+<ul className="sources">
+  <Src id="readme" href={`${repo.agentOs}#readme`}>Agent-OS README: measurements, the approval designs and known limits</Src>
+  <Src id="code" href={`${repo.agentOs}/blob/main/leanring-buddy/HarnessConfirmations.swift`}>HarnessConfirmations.swift and ActionSafetyKernel.swift: the approval rules and their exact messages</Src>
+  <Src id="6488e06" href={`${repo.agentOs}/commit/6488e06d7049eccc61761c252117112ab60cf9d2`}>Commit 6488e06: the retraction of the shared-name figure</Src>
+</ul>
