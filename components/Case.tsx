@@ -1,5 +1,5 @@
 import type { Label } from '@/data/figures'
-import { Lbl } from './Label'
+import { Lbl, ext } from './Label'
 
 /** The top of every case page: title, one-line result with its label, meta line, links. */
 export function CaseHead({ title, result, label, meta, links }: {
@@ -18,7 +18,7 @@ export function CaseHead({ title, result, label, meta, links }: {
       <p className="meta">{meta}</p>
       {links && (
         <p className="links">
-          {links.map((l) => <a key={l.href} href={l.href}>{l.text} ↗</a>)}
+          {links.map((l) => <a key={l.href} href={l.href} {...ext(l.href)}>{l.text} ↗</a>)}
         </p>
       )}
     </header>

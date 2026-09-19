@@ -39,7 +39,7 @@ export function Scene({ s }: { s: SceneT }) {
         </ul>
       )}
       {s.ruler.scale === 'probes' && (
-        <p className="legend">Put to the live scanner, recorded September 2026 · <a href={`/work/${s.slug}/`}>watch it</a></p>
+        <p className="legend">One real question and two misuse attempts, put to the live scanner in September 2026 · <a href={`/work/${s.slug}/`}>watch it</a></p>
       )}
       <p className="cap"><Lbl l={s.label} /></p>
       <div className="foot">

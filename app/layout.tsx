@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { IBM_Plex_Mono, IBM_Plex_Sans, IBM_Plex_Sans_Condensed, IBM_Plex_Serif } from 'next/font/google'
 import { site } from '@/data/figures'
+import { ext } from '@/components/Label'
 import './globals.css'
 
 const sans = IBM_Plex_Sans({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--f-sans' })
@@ -46,16 +47,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <nav aria-label="Site">
               <a href="/#work">Work</a>
               <a href="/about/">About</a>
-              <a className="ext" href={site.github}>GitHub ↗</a>
-              <a className="ext" href={site.linkedin}>LinkedIn ↗</a>
+              <a className="ext" href={site.github} {...ext(site.github)}>GitHub ↗</a>
+              <a className="ext" href={site.linkedin} {...ext(site.linkedin)}>LinkedIn ↗</a>
               <a href={`mailto:${site.email}`}>Email</a>
             </nav>
           </header>
           <main id="main">{children}</main>
           <footer className="contact">
             <a href={`mailto:${site.email}`}>{site.email}</a>
-            <a href={site.github}>GitHub ↗</a>
-            <a href={site.linkedin}>LinkedIn ↗</a>
+            <a href={site.github} {...ext(site.github)}>GitHub ↗</a>
+            <a href={site.linkedin} {...ext(site.linkedin)}>LinkedIn ↗</a>
           </footer>
         </div>
       </body>

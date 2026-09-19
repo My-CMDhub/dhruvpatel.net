@@ -5,7 +5,7 @@ export const s = scenes.find((x) => x.slug === 'ovela')
 
 <CaseHead
   title="Ovela"
-  result="A voice receptionist on a real phone line. It answers in 0.55–0.71 s when no tool is needed, and it's built around the parts of a call that usually go wrong."
+  result="A voice receptionist on a real phone line. Replies that need no tool start in 0.55–0.71 s, and it's built around the parts of a call that usually go wrong."
   label={{ status: 'measured', note: '6 days, 12–51 turns each', href: '#src-readme' }}
   meta="Personal project · no customers; every call is my own test call · Python, FastAPI, asyncio, Twilio, Deepgram Flux, gpt-4.1-nano, Cartesia, Appwrite, Next.js · 1,922 tests"
   links={[{ text: 'Source', href: repo.ovela }, { text: 'ovela.dev', href: 'https://ovela.dev' }]}
@@ -47,7 +47,7 @@ Text is generated faster than it's spoken. When a caller cuts in, the model has 
 
 ### Silence while a tool runs
 
-When the model reached for a tool, the caller heard nothing for 2.3–4.3 s. Now code says a short line first ("Let me have a look."), and the first words arrive in 0.7–0.8 s. The answer itself still waits on the tool; the silence is gone.
+When the model reached for a tool, the caller heard nothing for 2.3–4.3 s. Now code says a short line first ("Let me have a look."), and the caller hears a first word in 0.7–0.8 s. The answer itself still waits on the tool; the silence is gone.
 
 <L s="measured" n="4 tool turns before, 2 after" src="readme" />
 
@@ -68,5 +68,5 @@ When the model reached for a tool, the caller heard nothing for 2.3–4.3 s. Now
 ## Sources
 
 <ul className="sources">
-  <Src id="readme" href={`${repo.ovela}#readme`}>Ovela README: the results table (each before/after row is one call each side) and known limits</Src>
+  <Src id="readme" href={`${repo.ovela}#readme`}>Ovela README: the results table (each before/after row is one call before and one after) and known limits</Src>
 </ul>

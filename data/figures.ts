@@ -3,6 +3,9 @@
 
 import { halfWidthPct, may10 } from './amountRules.ts'
 
+// The 10 May rule's band on a 0.05 ETH order, measured by running the real rule (data/amountRules.ts).
+const mayPct = halfWidthPct(may10, '0.05')
+
 export type Status = 'measured' | 'provisional' | 'withdrawn' | 'source' | 'first-hand'
 export type Label = { status: Status; note: string; href?: string }
 
@@ -10,7 +13,7 @@ export const site = {
   name: 'Dhruv Patel',
   place: 'Software engineer · Melbourne',
   positioning:
-    'I build software where the model is only part of the problem: the business constraint, how the system actually behaves, the person using it, and what it costs to run.',
+    'I build the parts of AI software around the model (the business constraint, the real behaviour, the person using it, the running cost) and measure them before I believe them.',
   email: 'dppatel20004@gmail.com',
   github: 'https://github.com/My-CMDhub',
   linkedin: 'https://www.linkedin.com/in/dhruvpatel-profile/',
@@ -54,13 +57,13 @@ export const scenes: Scene[] = [
     from: '3.7 s',
     to: '0.9 s',
     ruler: { scale: 'linear', max: 4, unit: 's', from: 3.7, to: 0.9 },
-    label: { status: 'measured', note: 'one call each side', href: '/work/ovela/#src-readme' },
+    label: { status: 'measured', note: 'one call before, one after', href: '/work/ovela/#src-readme' },
     notYet: 'as fast when a tool runs · 1.1–1.7 s',
     ledger: [
       { tag: 'SAW', text: 'The first reply of each call was the slowest, well over a second behind the rest.', value: '3.7 s', sub: 'first reply' },
       { tag: 'SAW', text: 'Two causes: a cold first model call, and a lookup that could only say “ask who is calling”.', value: '12 / 15', sub: 'replays wasted a lookup' },
       { tag: 'CHANGED', text: 'The first request is sent once while the greeting plays. The agent asks who’s calling before looking anything up.', value: '0 / 15', sub: 'wasted lookups' },
-      { tag: 'HOLDS', text: 'First reply of a call.', value: '0.9 s', sub: 'one call each side' },
+      { tag: 'HOLDS', text: 'First reply of a call.', value: '0.9 s', sub: 'one call before, one after' },
       { tag: 'NOT YET', text: 'Replies that need a tool still wait on the tool’s round trip.', value: '1.1–1.7 s', sub: 'two tool turns' },
     ],
   },
@@ -68,13 +71,13 @@ export const scenes: Scene[] = [
     slug: 'agent-os',
     group: 'project',
     name: 'Agent-OS',
-    kind: 'a harness a model can operate a Mac through',
+    kind: 'a harness built for an AI model to operate a Mac',
     what: 'A request queued behind a 3-second action',
     from: '2,864 ms',
     to: '5 ms',
     ruler: { scale: 'log', from: 2864, to: 5 },
     label: { status: 'measured', note: 'median of 5 · log scale', href: '/work/agent-os/#src-readme' },
-    notYet: 'a model driving it',
+    notYet: 'a model driving it · its actions are hand-written for now',
     ledger: [
       { tag: 'SAW', text: 'Requests ran on the main thread, so one slow action held up everything behind it.', value: '8,520 ms', sub: 'stalls in one planner run' },
       { tag: 'CHANGED', text: 'Requests moved off the main thread.', value: '2.8 ms', sub: 'longest stall after' },
@@ -88,10 +91,10 @@ export const scenes: Scene[] = [
     slug: 'capstone',
     group: 'project',
     name: 'Capstone',
-    kind: 'an Ethereum payment gateway for a real client · Overall Team Winner, IMPACT 2025',
-    what: 'How far a payment may be from the amount asked',
+    kind: 'an Ethereum payment gateway for a real client · overall winner, IMPACT 2025 capstone showcase',
+    what: 'How far a payment may be from the amount asked, on a 0.05 ETH order',
     from: '±0.5%',
-    to: '6 decimals',
+    to: `±${+mayPct.toFixed(4)}%`,
     ruler: { scale: 'band' },
     label: { status: 'source', note: 'git history of the amount check', href: '/work/capstone/#src-amount' },
     notYet: 'tests for the amount check',
@@ -120,7 +123,7 @@ export const scenes: Scene[] = [
       { tag: 'CHANGED', text: 'Index-first retrieval: turn one reads only the index, turn two reads at most two files in parallel.', value: '3.9 s', sub: 'first-turn search' },
       { tag: 'CHANGED', text: 'The reference corpus moved into a memory store, out of every request.', value: '−3.5k', sub: 'tokens per request' },
       { tag: 'CHANGED', text: 'Cold start, with the same two changes.', value: '59.2 → 42.6 s', sub: 'cold start' },
-      { tag: 'HOLDS', text: 'Turn two, reading at most two files.', value: '8.7 s', sub: 'repeated runs' },
+      { tag: 'HOLDS', text: 'The second turn, which reads at most two files.', value: '8.7 s', sub: 'repeated runs' },
       { tag: 'NOT YET', text: 'A cold start still takes about 43 seconds.' },
     ],
   },
@@ -157,11 +160,25 @@ export const scenes: Scene[] = [
 // `now` is measured by running the real 10 May rule (data/amountRules.ts), not typed in.
 export const band = {
   old: 0.5,
-  now: halfWidthPct(may10, '0.05'),
+  now: mayPct,
   short: -0.5, // 0.00025 ETH short
 }
 
 export const also: { name: string; when: string; text: string; href?: string }[] = [
-  { name: 'EdgenAI', when: '2025–26', text: 'LangGraph workflows and output guardrails for an LLM rubric generator.' },
-  { name: 'Royal Humane Society', when: '2025', text: 'OCR digitisation of historical records: Flask, PostgreSQL.' },
+  { name: 'EdgenAI', when: '2025–26 · internship', text: 'LangGraph workflows and output guardrails for an LLM rubric generator.' },
+  { name: 'Royal Humane Society', when: '2025 · internship', text: 'OCR digitisation of historical records: Flask, PostgreSQL.' },
 ]
+
+// The home hero's journey line. Dates are month-precise; "now" is the build date, so each deploy moves it.
+export const journey = {
+  start: '2022-11',
+  study: { to: '2025-06', label: 'studying' },
+  work: { label: 'building' },
+  marks: [
+    { at: '2025-05', label: 'IMPACT win', side: 'end' },
+    { at: '2025-07', label: 'Audacix', side: 'start' },
+    { at: '2026-05', label: 'Silverpond', side: 'end' },
+  ] as { at: string; label: string; side: 'start' | 'end' }[],
+  ahead: 6, // months of dashed line past now
+  says: 'Studied at Melbourne Institute of Technology from November 2022 to June 2025, winning its IMPACT showcase in May 2025. Internships at Audacix from July 2025 and Silverpond from May 2026. Building Ovela and Agent-OS now.',
+}

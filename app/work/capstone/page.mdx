@@ -22,7 +22,7 @@ The client's brief was one line of goal: *"a secure and universal payment gatewa
 
 ### What I cut: the part we couldn't take back
 
-By the build semester two of five had left, and the plan was still sized for five. The riskiest item in it was the smart contracts. Once deployed, a contract can't be changed; it carries its own operational load; and none of us had the expertise to be sure we'd get it right the first time. Nothing in the client's need required one. So we chose the deterministic approach, an option we could still fix after we shipped it.
+By the build semester two of five had left, and the plan was still sized for five. The riskiest item in it was the smart contracts. Once deployed, a contract can't be changed; it carries its own operational load; and none of us had the expertise to be sure we'd get it right the first time. Nothing in the client's need required one. So we dropped the contracts: every payment address is derived by our own backend from one wallet (an HD wallet), which is code we could still fix after shipping.
 
 ### What I kept
 
