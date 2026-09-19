@@ -1,6 +1,7 @@
 import { also, scenes, site } from '@/data/figures'
 import { Scene } from '@/components/Scene'
 import { Journey } from '@/components/Journey'
+import { Signature } from '@/components/Signature'
 
 export default function Home() {
   return (
@@ -19,6 +20,7 @@ export default function Home() {
           </div>
         ))}
       </div>
+      <Signature />
       <section className="also" aria-labelledby="h-also">
         <h2 id="h-also">Also</h2>
         <ul>

@@ -71,6 +71,9 @@ h1 { font: 700 clamp(64px, 14vw, 120px)/.9 var(--f-cond); letter-spacing: -.04em
 .cap { font: 500 12.5px var(--f-mono); margin-top: 12px; }
 .grp-h { font: 500 12px var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding-top: 56px; }
 .grp-h + .scene { border-top: 0; padding-top: 24px; }
+.sig { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); z-index: 5; transform: translate(-50%, 12px); opacity: 0; pointer-events: none; width: max-content; max-width: calc(100vw - 32px); text-align: center; font: 500 13px/1.4 var(--f-mono); color: var(--ink); background: var(--bg); border: 1px solid var(--rule); border-radius: 999px; padding: 9px 16px; box-shadow: 0 10px 30px -14px color-mix(in srgb, var(--ink) 50%, transparent); transition: opacity .5s ease, transform .5s cubic-bezier(.22, .8, .2, 1); }
+.sig.on { opacity: 1; transform: translate(-50%, 0); }
+.sig .o { color: var(--muted); } .sig .f { color: var(--b); }
 .probes { list-style: none; max-width: 820px; margin-top: 30px; border-top: 1.5px solid var(--ink); }
 .probes li { display: grid; grid-template-columns: 18px 1fr auto; gap: 14px; align-items: baseline; padding: 12px 0; border-bottom: 1px solid var(--rule); }
 .probes .pk { width: 11px; height: 11px; border-radius: 50%; align-self: center; }
