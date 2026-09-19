@@ -7,7 +7,9 @@ on:
   pull_request:
   schedule: [{ cron: '0 20 * * *' }] # 06:00 in Melbourne (AEST)
   workflow_dispatch:
-concurrency: { group: site-${{ github.ref }}, cancel-in-progress: false }
+concurrency:
+  group: site-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
   build:
     runs-on: ubuntu-latest
