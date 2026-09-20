@@ -340,19 +340,26 @@ a.lbl:hover { border-bottom-style: solid; }
      bitmap and the colour change is two images dissolving through a muddy middle. Two answers below:
      show as little of the stretched old snapshot as possible, and do the colour as a real animation
      on the real element once it has landed (see the vt-arrive / vt-settle script in layout.tsx). */
-  ::view-transition-group(*) { animation-duration: .52s; animation-timing-function: cubic-bezier(.22, .9, .18, 1); }
-  ::view-transition-old(*) { animation: vt-out .14s linear both; }
-  ::view-transition-new(*) { animation: vt-in .32s .08s linear both; }
-  ::view-transition-old(root) { animation: vt-leave .22s ease-in both; }
-  ::view-transition-new(root) { animation: vt-land .44s .06s cubic-bezier(.22, .9, .18, 1) both; }
+  /* Three beats, in order, so the name is never competing with anything:
+     0.00–0.16s  the page the name is leaving gets out of the way
+     0.06–0.56s  the name alone travels and grows across an otherwise empty page
+     0.38–0.76s  the page it landed on arrives underneath it
+     A named element is captured in its own group, so it is *excluded* from the root snapshot —
+     which is what lets the name outlive the page it came from. */
+  ::view-transition-group(*) { animation-duration: .5s; animation-delay: .06s;
+    animation-timing-function: cubic-bezier(.16, .84, .26, 1); }
+  ::view-transition-old(*) { animation: vt-out .18s linear both; }
+  ::view-transition-new(*) { animation: vt-in .34s .1s linear both; }
+  ::view-transition-group(root) { animation-delay: 0s; }
+  ::view-transition-old(root) { animation: vt-out .16s ease-in both; }
+  ::view-transition-new(root) { animation: vt-land .38s .38s cubic-bezier(.16, .84, .26, 1) both; }
   @keyframes vt-out { to { opacity: 0; } }
   @keyframes vt-in { from { opacity: 0; } }
-  @keyframes vt-leave { to { opacity: 0; transform: translateY(-6px); } }
-  @keyframes vt-land { from { opacity: 0; transform: translateY(14px); } }
+  @keyframes vt-land { from { opacity: 0; transform: translateY(16px); } }
 
   /* Both snapshots are taken in oxblood, so nothing cross-fades; the real heading then settles to ink. */
   .vt-arrive .case-head h1 { color: var(--a); }
-  .vt-settle .case-head h1 { animation: h1-ink .5s cubic-bezier(.22, .9, .18, 1) forwards; }
+  .vt-settle .case-head h1 { animation: h1-ink .36s cubic-bezier(.16, .84, .26, 1) forwards; }
   @keyframes h1-ink { from { color: var(--a); } to { color: var(--ink); } }
   .js .scene:not(.in) .mk-new { transform: translateX(var(--dx)); }
   .js .scene:not(.in) .arrow { opacity: 0; }
