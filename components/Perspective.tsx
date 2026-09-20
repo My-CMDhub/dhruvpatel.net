@@ -12,12 +12,16 @@ import { DEFAULT, personas, pickOf, type PersonaId } from '@/data/personas'
 // DOM is always a frame or two behind the hardware cursor, so glueing reads as jitter; easing a
 // fraction of the remaining distance each frame turns that lag into something that looks intended.
 
-export const KEY = 'reader'
-const SEEN = 'reader-asked'
+export const KEY = 'reader'          // localStorage: who they said they were
+const DONE = 'reader-done'           // they answered or said no thanks: never ask again
+const LAST = 'reader-asked'          // when we last asked and got no answer
+const COOL = 24 * 60 * 60 * 1000     // ms: leave an unanswered question alone for a day
+const IDLE = 22000  // ms the card waits at the dock before excusing itself, unanswered
 const ASK = 'Hey 👋 I’m Dhruv, a software engineer in Melbourne. You’re'
 const LETTERS = Array.from(ASK)   // by code point, so the emoji is one step and never splits
 const HOLD = 6000   // ms the answer stays once it has finished typing, as in the Agent-OS overlay
-const CHAR = 26     // ms per character
+const CHAR = 34     // ms per character for the question: it is the first thing anyone reads
+const REPLY = 27    // ms per character for the answer, which is shorter and already expected
 const CHASE = 0.19  // eased fraction per frame while riding the cursor
 const GLIDE = 0.085 // gentler, for the journey down to the dock
 const WAIT = 9000   // ms: if the cursor never arrives, offer it anyway
@@ -40,15 +44,18 @@ export function Perspective() {
 
   const close = useCallback(() => {
     setPhase('off')
-    try { sessionStorage.setItem(SEEN, '1') } catch { /* blocked */ }
+    try { localStorage.setItem(DONE, '1') } catch { /* blocked */ }
   }, [])
 
   // Wait for the home page to finish introducing itself, then for the cursor to actually be here.
   useEffect(() => {
+    // Asked once, then left alone. Answering or dismissing settles it for good; being ignored only
+    // buys a day's quiet, because a question nobody saw isn't a question anybody answered.
     try {
-      if (sessionStorage.getItem(SEEN)) return
+      if (localStorage.getItem(DONE)) return
       const saved = localStorage.getItem(KEY) as PersonaId | null
       if (saved && personas.some((p) => p.id === saved)) { setId(saved); return }
+      if (Date.now() - Number(localStorage.getItem(LAST) || 0) < COOL) return
     } catch { /* blocked: offer it anyway */ }
 
     const root = document.documentElement
@@ -126,11 +133,21 @@ export function Perspective() {
     return () => { cancelAnimationFrame(raf); removeEventListener('pointermove', onMove) }
   }, [phase])
 
+  useEffect(() => {
+    if (phase !== 'rest') return
+    const t = window.setTimeout(() => {
+      try { localStorage.setItem(LAST, String(Date.now())) } catch { /* blocked */ }
+      setGoing(true)
+      window.setTimeout(() => setPhase('off'), 500)
+    }, IDLE)
+    return () => clearTimeout(t)
+  }, [phase])
+
   useEffect(() => () => clear(), [])
 
   const choose = (next: PersonaId) => {
     setId(next)
-    try { localStorage.setItem(KEY, next); sessionStorage.setItem(SEEN, '1') } catch { /* blocked */ }
+    try { localStorage.setItem(KEY, next); localStorage.setItem(DONE, '1') } catch { /* blocked */ }
     dispatchEvent(new CustomEvent('reader', { detail: next }))
 
     clear()
@@ -146,9 +163,9 @@ export function Perspective() {
     setSaid('')
     const chars = Array.from(line)
     for (let i = 1; i <= chars.length; i++) {
-      timers.current.push(window.setTimeout(() => setSaid(chars.slice(0, i).join('')), i * CHAR))
+      timers.current.push(window.setTimeout(() => setSaid(chars.slice(0, i).join('')), i * REPLY))
     }
-    timers.current.push(window.setTimeout(done, chars.length * CHAR + HOLD))
+    timers.current.push(window.setTimeout(done, chars.length * REPLY + HOLD))
   }
 
   if (phase === 'off') return null
