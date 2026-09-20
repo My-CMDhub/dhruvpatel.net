@@ -17,7 +17,13 @@
 html { scroll-behavior: smooth; accent-color: var(--b); -webkit-tap-highlight-color: color-mix(in srgb, var(--b) 18%, transparent); }
 /* Selection, taps and native controls in the site's green, not the browser's blue. */
 ::selection { background: color-mix(in srgb, var(--b) 28%, transparent); color: var(--ink); }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+/* Top level on purpose: inside @media, Chrome parses this and then ignores it. Motion is held back
+   in the reduced-motion rule below instead. */
+@view-transition { navigation: auto; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
 body {
   background: var(--bg); color: var(--ink);
   font: 17px/1.6 var(--f-sans), system-ui, sans-serif;
@@ -328,9 +334,26 @@ a.lbl:hover { border-bottom-style: solid; }
   @keyframes jr-flow { to { background-position: 10px 0; } }
   html.intro-go .top { transition-delay: 1.25s; }
 
-  /* Page to page: a project's name travels into its case page (S36) */
-  @view-transition { navigation: auto; }
-  ::view-transition-group(*) { animation-duration: .5s; animation-timing-function: cubic-bezier(.22, .8, .2, 1); }
+  /* Page to page (S36, reworked S56): a project's name travels into its case page, and the page it
+     lands on travels with it — one movement, rather than a blink underneath a flying word.
+     The browser morphs a *photograph* of the heading, so a 30px word stretched to 88px is a blurred
+     bitmap and the colour change is two images dissolving through a muddy middle. Two answers below:
+     show as little of the stretched old snapshot as possible, and do the colour as a real animation
+     on the real element once it has landed (see the vt-arrive / vt-settle script in layout.tsx). */
+  ::view-transition-group(*) { animation-duration: .52s; animation-timing-function: cubic-bezier(.22, .9, .18, 1); }
+  ::view-transition-old(*) { animation: vt-out .14s linear both; }
+  ::view-transition-new(*) { animation: vt-in .32s .08s linear both; }
+  ::view-transition-old(root) { animation: vt-leave .22s ease-in both; }
+  ::view-transition-new(root) { animation: vt-land .44s .06s cubic-bezier(.22, .9, .18, 1) both; }
+  @keyframes vt-out { to { opacity: 0; } }
+  @keyframes vt-in { from { opacity: 0; } }
+  @keyframes vt-leave { to { opacity: 0; transform: translateY(-6px); } }
+  @keyframes vt-land { from { opacity: 0; transform: translateY(14px); } }
+
+  /* Both snapshots are taken in oxblood, so nothing cross-fades; the real heading then settles to ink. */
+  .vt-arrive .case-head h1 { color: var(--a); }
+  .vt-settle .case-head h1 { animation: h1-ink .5s cubic-bezier(.22, .9, .18, 1) forwards; }
+  @keyframes h1-ink { from { color: var(--a); } to { color: var(--ink); } }
   .js .scene:not(.in) .mk-new { transform: translateX(var(--dx)); }
   .js .scene:not(.in) .arrow { opacity: 0; }
   .cr-card button { transition: opacity .5s ease, filter .5s ease, transform .5s ease, border-color .5s ease, background .5s ease; }
