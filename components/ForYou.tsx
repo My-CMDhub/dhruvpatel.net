@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { DEFAULT, forCase, pickOf, personas, type PersonaId } from '@/data/personas'
+import { DEFAULT, forCase, personas, type PersonaId } from '@/data/personas'
 import { KEY } from './Perspective'
 
 // The paragraph at the top of a case page, in the terms of whoever said they were reading. The
@@ -27,9 +27,6 @@ export function ForYou({ slug }: { slug: string }) {
   const text = lines?.[id] ?? lines?.[DEFAULT]
   if (!text) return null
   return (
-    <aside className="foryou">
-      {id !== DEFAULT && <p className="foryou-who">for {pickOf(id)}</p>}
-      <p className="foryou-txt">{text}</p>
-    </aside>
+    <aside className="foryou"><p className="foryou-txt">{text}</p></aside>
   )
 }

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { IBM_Plex_Mono, IBM_Plex_Sans, IBM_Plex_Sans_Condensed, IBM_Plex_Serif } from 'next/font/google'
 import { site } from '@/data/figures'
 import { ext } from '@/components/Label'
+import { Perspective } from '@/components/Perspective'
 import './globals.css'
 
 const sans = IBM_Plex_Sans({ subsets: ['latin'], weight: ['400', '500', '600'], variable: '--f-sans' })
@@ -61,6 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </nav>
           </header>
           <main id="main">{children}</main>
+          <Perspective />
           <footer className="contact">
             <a href={`mailto:${site.email}`}>{site.email}</a>
             <a href={site.github} {...ext(site.github)}>GitHub ↗</a>
