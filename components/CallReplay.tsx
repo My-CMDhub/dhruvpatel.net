@@ -291,7 +291,7 @@ export function CallReplay() {
 
       <p className="cr-note">
         The caller is a synthesised voice reading a script. Rest of all from VAD, barge-in, tool calls are handled by
-        the deployed underlying system.
+        the underlying deployed system.
       </p>
       <figcaption className="cap">
         <a className="lbl lbl-measured" href="#src-call">measured · answer times from the recording you can play</a>
