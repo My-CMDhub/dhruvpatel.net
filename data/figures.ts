@@ -14,7 +14,7 @@ export const site = {
   name: 'Dhruv Patel',
   place: 'Software engineer · Melbourne',
   positioning:
-    'I build the parts of AI software around the model (the business constraint, the real behaviour, the person using it, the running cost) and measure them before I believe them.',
+    'I build the parts around the model: the phone line, the permission prompt, the payment that arrives 0.00025 ETH short. I measure them before I believe them.',
   email: 'dppatel20004@gmail.com',
   github: 'https://github.com/My-CMDhub',
   linkedin: 'https://www.linkedin.com/in/dhruvpatel-profile/',

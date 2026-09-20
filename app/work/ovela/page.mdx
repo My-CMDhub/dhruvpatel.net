@@ -5,11 +5,13 @@ export const s = scenes.find((x) => x.slug === 'ovela')
 
 <CaseHead
   title="Ovela"
-  result="A voice receptionist on a real phone line. Replies that need no tool start in 0.55–0.71 s, and it's built around the parts of a call that usually go wrong."
+  result="A voice receptionist on a real phone line. In the two calls below it answers in 0.9–1.2 s, tool turns included, and it's built around the parts of a call that usually go wrong."
   label={{ status: 'measured', note: '6 days, 12–51 turns each', href: '#src-readme' }}
   meta="Personal project · no customers; every call is my own test call · Python, FastAPI, asyncio, Twilio, Deepgram Flux, gpt-4.1-nano, Cartesia, Appwrite, Next.js · 1,922 tests"
   links={[{ text: 'Source', href: repo.ovela }, { text: 'ovela.dev', href: 'https://ovela.dev' }]}
 />
+
+<CallReplay />
 
 ## How it was earned
 
@@ -63,10 +65,12 @@ When the model reached for a tool, the caller heard nothing for 2.3–4.3 s. Now
 - **Tool replies take {s.ledger.at(-1).value}.** The remaining latency is the tool round trip, not the model.
 - **Identity is confirmed on one matching word of the name**, so a relative sharing the surname passes.
 - **Gates judge agreement from word patterns**, so an unusual "yes" can be refused.
+- **No caller has ever been a stranger.** Every call is mine, or a script's.
 - **One tenant, no real customers.**
 
 ## Sources
 
 <ul className="sources">
   <Src id="readme" href={`${repo.ovela}#readme`}>Ovela README: the results table (each before/after row is one call before and one after) and known limits</Src>
+  <Src id="call">The two calls above, recorded 20 September 2026 on the live number. Both sides were recorded on separate channels, which is how the answer times are measured; the transcript is Deepgram's, of the same file the page plays.</Src>
 </ul>

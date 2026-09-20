@@ -341,6 +341,40 @@ a.lbl:hover { border-bottom-style: solid; }
   @keyframes settle { from { opacity: 0; transform: translateY(8px); } }
 }
 
+/* Hear the call (S52): the waveform is the recording's own envelope, one lane per channel. */
+.callr { margin: 40px 0 8px; padding: 28px 28px 22px; border: 1px solid var(--rule); border-radius: 14px; background: color-mix(in srgb, var(--ink) 3%, var(--bg)); }
+.cr-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.cr-tabs button { flex: 1 1 220px; text-align: left; font: 600 15px var(--f-sans); color: var(--ink2); background: none; border: 1px solid var(--rule); border-radius: 10px; padding: 10px 14px; cursor: pointer; }
+.cr-tabs button small { display: block; font: 400 12.5px var(--f-sans); color: var(--muted); margin-top: 2px; }
+.cr-tabs button[aria-pressed="true"] { border-color: var(--b); color: var(--ink); }
+.cr-stage { position: relative; margin-top: 18px; padding-left: 52px; }
+.cr-lanes { position: absolute; left: 0; top: 0; height: 84px; width: 46px; display: flex; flex-direction: column; justify-content: space-around; font: 500 10.5px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); text-align: right; }
+.cw { display: block; width: 100%; height: 84px; cursor: pointer; }
+.cw-caller rect { fill: color-mix(in srgb, var(--ink) 55%, transparent); }
+.cw-agent rect { fill: var(--b); }
+.cw-mid { stroke: var(--rule); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.cw-head { stroke: var(--a); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.cw-cut { fill: color-mix(in srgb, var(--prov) 22%, transparent); }
+.cr-bar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 14px; padding-left: 52px; }
+.cr-play { font: 600 14px var(--f-sans); color: var(--bg); background: var(--ink); border: 0; border-radius: 999px; padding: 10px 20px; min-height: 42px; cursor: pointer; }
+.cr-play[aria-pressed="true"] { background: var(--b); }
+.cr-time, .cr-now { font: 500 12.5px var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.cr-turns { list-style: none; margin: 20px 0 0; border-top: 1px solid var(--rule); }
+.cr-turns li { border-bottom: 1px solid var(--rule); }
+.cr-turns button { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 4px 14px; width: 100%; text-align: left; background: none; border: 0; padding: 11px 6px; cursor: pointer; }
+.cr-turns li.on { background: color-mix(in srgb, var(--b) 9%, transparent); }
+.cr-who { font: 500 10.5px var(--f-mono); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); padding-top: 3px; }
+.cr-agent .cr-who { color: var(--b); }
+.cr-text { font: 400 16px/1.45 var(--f-sans); color: var(--ink2); }
+.cr-agent .cr-text { color: var(--ink); }
+.cr-meta { grid-column: 2; display: flex; flex-wrap: wrap; gap: 10px; }
+.cr-meta b { font: 500 11.5px var(--f-mono); letter-spacing: .03em; }
+.cr-gap { color: var(--b); }
+.cr-hit { color: var(--prov); }
+.cr-over { color: var(--a); }
+.cr-note { font: italic 15px/1.5 var(--f-serif); color: var(--ink2); margin-top: 16px; max-width: 62ch; }
+.callr .cap { margin-top: 10px; }
+
 /* Phone (S30) */
 @media (max-width: 720px) {
   .wrap { padding: 20px 16px 48px; }
@@ -351,6 +385,12 @@ a.lbl:hover { border-bottom-style: solid; }
   .what { margin-top: 36px; font-size: 19px; }
   .ruler text { font-size: 28px; }
   .jr-top .jr-lbl:not(.jr-now-l) { display: none; }
+  .callr { padding: 20px 16px 18px; margin-left: -4px; margin-right: -4px; }
+  .cr-stage, .cr-bar { padding-left: 0; }
+  .cr-lanes { position: static; flex-direction: row; justify-content: space-between; width: auto; height: auto; text-align: left; margin-bottom: 4px; }
+  .cr-turns button { grid-template-columns: minmax(0, 1fr); padding: 10px 4px; }
+  .cr-meta { grid-column: 1; }
+  .cr-text { font-size: 15px; }
   .probes li { grid-template-columns: 14px minmax(0, 1fr); row-gap: 4px; }
   .probes b { grid-column: 2; }
   .probes q { font-size: 16px; }

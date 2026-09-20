@@ -6,8 +6,9 @@ import { Ledger } from '@/components/Scene'
 import { InvoiceDemo } from '@/components/InvoiceDemo'
 import { ApprovalDemo } from '@/components/ApprovalDemo'
 import { SilverpondFlow } from '@/components/SilverpondFlow'
+import { CallReplay } from '@/components/CallReplay'
 
 // Available in every .mdx page without an import.
 export function useMDXComponents(components: MDXComponents): MDXComponents {
-  return { a: (p: React.ComponentProps<'a'>) => <a {...p} {...ext(p.href)} />, L, Src, Media, CaseHead, Ledger, InvoiceDemo, ApprovalDemo, SilverpondFlow, ...components }
+  return { a: (p: React.ComponentProps<'a'>) => <a {...p} {...ext(p.href)} />, L, Src, Media, CaseHead, Ledger, InvoiceDemo, ApprovalDemo, SilverpondFlow, CallReplay, ...components }
 }
