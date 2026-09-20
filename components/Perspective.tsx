@@ -2,42 +2,48 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { DEFAULT, personas, pickOf, type PersonaId } from '@/data/personas'
 
-// A card that arrives near the reader's cursor once they've started looking around, asks who they
-// are, and leaves. The Agent-OS overlay glues itself to the mouse at 60fps, which a native panel can
-// do; in a browser the DOM always arrives a frame or two late, so glueing reads as jitter. Easing
-// toward the pointer instead — a fifth of the remaining distance each frame — turns that lag into
-// something that looks intended. It follows only until the reader's hand settles, then it stops and
-// becomes an ordinary card you can click.
+// A card that asks who is reading. It arrives beside the cursor and types itself out there, riding
+// the pointer the way the Agent-OS overlay does — then, the moment the sentence is finished, it
+// lets go of the cursor and glides down to the foot of the page, where it stops and can be used.
+// Attached it is untouchable, so it can never be a thing you are trying to click and chasing;
+// detached it is an ordinary card. Both halves are the same rAF loop with a different target.
+//
+// The Agent-OS panel is glued to the mouse at 60fps, which a native panel can be. In a browser the
+// DOM is always a frame or two behind the hardware cursor, so glueing reads as jitter; easing a
+// fraction of the remaining distance each frame turns that lag into something that looks intended.
 
 export const KEY = 'reader'
 const SEEN = 'reader-asked'
-const HOLD = 6000      // ms the answer stays once it has finished typing, as in the Agent-OS overlay
-const CHAR = 26        // ms per character
-const EASE = 0.19      // fraction of the remaining distance per frame
-const SETTLE = 700     // ms of a still pointer before the card stops chasing and becomes clickable
-const LATEST = 4000    // ms: it stops chasing by now whatever the pointer is doing
-const WAIT = 5000      // ms before it offers itself unprompted
+const ASK = 'Hey 👋 I’m Dhruv, a software engineer in Melbourne. You’re'
+const LETTERS = Array.from(ASK)   // by code point, so the emoji is one step and never splits
+const HOLD = 6000   // ms the answer stays once it has finished typing, as in the Agent-OS overlay
+const CHAR = 26     // ms per character
+const CHASE = 0.19  // eased fraction per frame while riding the cursor
+const GLIDE = 0.085 // gentler, for the journey down to the dock
+const WAIT = 9000   // ms: if the cursor never arrives, offer it anyway
+
+type Phase = 'off' | 'chase' | 'dock' | 'rest'
 
 export function Perspective() {
-  const [show, setShow] = useState(false)
-  const [rest, setRest] = useState(false)   // stopped chasing, safe to click
+  const [phase, setPhase] = useState<Phase>('off')
+  const [typed, setTyped] = useState(0)
   const [id, setId] = useState<PersonaId>(DEFAULT)
   const [said, setSaid] = useState('')
   const [going, setGoing] = useState(false)
   const card = useRef<HTMLDivElement>(null)
-  const at = useRef({ x: 0, y: 0 })         // where it is
-  const to = useRef({ x: 0, y: 0 })         // where it wants to be
+  const at = useRef({ x: 0, y: 0 })
+  const to = useRef({ x: 0, y: 0 })
+  const met = useRef(false)     // has a real cursor been seen on the page
   const placed = useRef(false)
-  const met = useRef(false)   // has the cursor moved at all yet
   const timers = useRef<number[]>([])
+  const clear = () => { timers.current.forEach(clearTimeout); timers.current = [] }
 
   const close = useCallback(() => {
-    setShow(false)
+    setPhase('off')
     try { sessionStorage.setItem(SEEN, '1') } catch { /* blocked */ }
   }, [])
 
-  // Offer it once they're actually looking: a scroll, the cursor arriving on the page, or five
-  // seconds of reading. Once per session, and never again once it has been answered or dismissed.
+  // Wait for the home page to finish introducing itself, then for the cursor to actually be here.
   useEffect(() => {
     try {
       if (sessionStorage.getItem(SEEN)) return
@@ -45,108 +51,131 @@ export function Perspective() {
       if (saved && personas.some((p) => p.id === saved)) { setId(saved); return }
     } catch { /* blocked: offer it anyway */ }
 
-    // know where the cursor is from the start, so the card can arrive beside it rather than fly in
-    const track = (e: PointerEvent) => { to.current = { x: e.clientX, y: e.clientY }; met.current = true }
-    const open = () => { setShow(true); off() }
-    const t = window.setTimeout(open, WAIT)
     const root = document.documentElement
+    const fine = matchMedia('(hover: hover) and (pointer: fine)').matches
+    const calm = matchMedia('(prefers-reduced-motion: reduce)').matches
+    let obs: MutationObserver | null = null
+
+    const begin = () => {
+      off()
+      if (fine && !calm && met.current) { setPhase('chase'); return }
+      setTyped(LETTERS.length)   // nothing to ride, and nothing to perform: it simply docks
+      setPhase('dock')
+    }
+    const track = (e: PointerEvent) => {
+      to.current = { x: e.clientX, y: e.clientY }
+      met.current = true
+      if (!root.classList.contains('intro')) begin()
+    }
+    const t = window.setTimeout(begin, WAIT)
     const off = () => {
       clearTimeout(t)
-      removeEventListener('scroll', open)
+      obs?.disconnect()
       removeEventListener('pointermove', track)
-      root.removeEventListener('pointerenter', open)
+      removeEventListener('scroll', begin)
     }
-    addEventListener('scroll', open, { passive: true })
     addEventListener('pointermove', track, { passive: true })
-    root.addEventListener('pointerenter', open)   // the cursor coming back onto the page
+    addEventListener('scroll', begin, { passive: true })
+    if (root.classList.contains('intro')) {
+      obs = new MutationObserver(() => { if (!root.classList.contains('intro') && met.current) begin() })
+      obs.observe(root, { attributes: true, attributeFilter: ['class'] })
+    }
     return off
   }, [])
 
-  // Follow the pointer, then stop. One rAF loop, one transform, nothing written from the event.
+  // Type the question out where the cursor is, then let go of it.
   useEffect(() => {
-    if (!show) return
-    const calm = matchMedia('(prefers-reduced-motion: reduce)').matches
-    const touch = !matchMedia('(hover: hover) and (pointer: fine)').matches
-    if (calm || touch) { setRest(true); return }   // nothing to chase: it docks instead
-
-    let raf = 0, still = 0
-    const stop = () => setRest(true)
-    const onMove = (e: PointerEvent) => {
-      to.current = { x: e.clientX, y: e.clientY }
-      met.current = true   // the trigger's own tracker is gone by now; this is the only one left
-      clearTimeout(still)
-      still = window.setTimeout(stop, SETTLE)
+    if (phase !== 'chase') return
+    clear()
+    for (let i = 1; i <= LETTERS.length; i++) {
+      timers.current.push(window.setTimeout(() => setTyped(i), i * CHAR))
     }
-    const latest = window.setTimeout(stop, LATEST)
+    timers.current.push(window.setTimeout(() => setPhase('dock'), LETTERS.length * CHAR + 240))
+    return clear
+  }, [phase])
+
+  // One loop, two targets: the cursor while attached, the foot of the page once detached.
+  useEffect(() => {
+    if (phase !== 'chase' && phase !== 'dock') return
+    const el = card.current
+    if (!el) return
+    if (phase === 'dock' && !placed.current) { setPhase('rest'); return }   // docked without ever riding
+
+    let raf = 0
+    const onMove = (e: PointerEvent) => { to.current = { x: e.clientX, y: e.clientY }; met.current = true }
+    if (phase === 'chase') addEventListener('pointermove', onMove, { passive: true })
+
     const tick = () => {
       raf = requestAnimationFrame(tick)
-      const el = card.current
-      if (!el) return
       const w = el.offsetWidth, h = el.offsetHeight, m = 12
-      // below and to the right of the cursor, the way the Agent-OS panel sits, and never off-screen.
-      // Until the cursor has actually moved we have no idea where it is, so it waits at the foot of
-      // the page rather than parking itself on the header.
-      const tx = met.current
-        ? Math.min(Math.max(to.current.x + 22, m), innerWidth - w - m)
-        : (innerWidth - w) / 2
-      const ty = met.current
-        ? Math.min(Math.max(to.current.y + 18, m), innerHeight - h - m)
-        : innerHeight - h - 24
+      const homeX = (innerWidth - w) / 2, homeY = innerHeight - h - 24
+      const tx = phase === 'chase' ? Math.min(Math.max(to.current.x + 22, m), innerWidth - w - m) : homeX
+      const ty = phase === 'chase' ? Math.min(Math.max(to.current.y + 18, m), innerHeight - h - m) : homeY
       if (!placed.current) { at.current = { x: tx, y: ty }; placed.current = true }
-      at.current.x += (tx - at.current.x) * EASE
-      at.current.y += (ty - at.current.y) * EASE
+      const k = phase === 'chase' ? CHASE : GLIDE
+      at.current.x += (tx - at.current.x) * k
+      at.current.y += (ty - at.current.y) * k
       el.style.transform = `translate3d(${at.current.x.toFixed(1)}px, ${at.current.y.toFixed(1)}px, 0)`
+      // Arrived: hand the position back to CSS so a resize can't strand it, and let it be clicked.
+      if (phase === 'dock' && Math.abs(tx - at.current.x) < 0.6 && Math.abs(ty - at.current.y) < 0.6) {
+        el.style.transform = ''
+        setPhase('rest')
+      }
     }
-    addEventListener('pointermove', onMove, { passive: true })
-    still = window.setTimeout(stop, SETTLE)
     raf = requestAnimationFrame(tick)
-    return () => {
-      cancelAnimationFrame(raf); clearTimeout(still); clearTimeout(latest)
-      removeEventListener('pointermove', onMove)
-    }
-  }, [show])
+    return () => { cancelAnimationFrame(raf); removeEventListener('pointermove', onMove) }
+  }, [phase])
 
-  useEffect(() => () => timers.current.forEach(clearTimeout), [])
+  useEffect(() => () => clear(), [])
 
   const choose = (next: PersonaId) => {
     setId(next)
     try { localStorage.setItem(KEY, next); sessionStorage.setItem(SEEN, '1') } catch { /* blocked */ }
     dispatchEvent(new CustomEvent('reader', { detail: next }))
 
-    timers.current.forEach(clearTimeout)
-    timers.current = []
+    clear()
     const line = personas.find((p) => p.id === next)?.says ?? ''
     const calm = matchMedia('(prefers-reduced-motion: reduce)').matches
     setGoing(false)
-    setRest(true)
-    const done = () => { setGoing(true); timers.current.push(window.setTimeout(() => setShow(false), 500)) }
+    const done = () => { setGoing(true); timers.current.push(window.setTimeout(() => setPhase('off'), 500)) }
     if (calm) {
       setSaid(line)
       timers.current.push(window.setTimeout(done, HOLD))
       return
     }
     setSaid('')
-    for (let i = 1; i <= line.length; i++) {
-      timers.current.push(window.setTimeout(() => setSaid(line.slice(0, i)), i * CHAR))
+    const chars = Array.from(line)
+    for (let i = 1; i <= chars.length; i++) {
+      timers.current.push(window.setTimeout(() => setSaid(chars.slice(0, i).join('')), i * CHAR))
     }
-    timers.current.push(window.setTimeout(done, line.length * CHAR + HOLD))
+    timers.current.push(window.setTimeout(done, chars.length * CHAR + HOLD))
   }
 
-  if (!show) return null
+  if (phase === 'off') return null
+  const full = typed >= LETTERS.length
+  const riding = phase === 'chase' || phase === 'dock'
   return (
-    <div ref={card} className={`psp${rest ? ' rest' : ''}${going ? ' out' : ''}`} role="note"
-      aria-label="Who is reading">
-      <button type="button" className="psp-x" onClick={close} aria-label="No thanks, close this">×</button>
+    <div ref={card} className={`psp${riding ? ' ride' : ''}${phase === 'rest' ? ' rest' : ''}${going ? ' out' : ''}`}
+      role="note" aria-label="Who is reading">
+      {phase === 'rest' && (
+        <button type="button" className="psp-x" onClick={close} aria-label="No thanks, close this">×</button>
+      )}
       <p className="psp-ask">
-        <span aria-hidden="true">Hey&nbsp;👋&nbsp;</span>I&rsquo;m Dhruv, a software engineer in Melbourne. You&rsquo;re{' '}
-        {/* the visible word sets the width; the real control sits invisibly on top of it */}
-        <span className="psp-pick">
-          <b aria-hidden="true">{pickOf(id)}<span>▾</span></b>
-          <select value={id} onChange={(e) => choose(e.target.value as PersonaId)}
-            aria-label="Tell me who you are, and each page will lead with what matters to you">
-            {personas.map((p) => <option key={p.id} value={p.id}>{p.pick}</option>)}
-          </select>
-        </span>.
+        {LETTERS.slice(0, typed).join('')}
+        {!full && <i className="psp-caret" aria-hidden="true" />}
+        {full && (
+          <>
+            {' '}
+            {/* the visible word sets the width; the real control sits invisibly on top of it */}
+            <span className="psp-pick">
+              <b aria-hidden="true">{pickOf(id)}<span>▾</span></b>
+              <select value={id} onChange={(e) => choose(e.target.value as PersonaId)}
+                aria-label="Tell me who you are, and each page will lead with what matters to you">
+                {personas.map((p) => <option key={p.id} value={p.id}>{p.pick}</option>)}
+              </select>
+            </span>.
+          </>
+        )}
       </p>
       {said && <p className="psp-say" aria-live="polite">{said}<i className="psp-caret" aria-hidden="true" /></p>}
     </div>

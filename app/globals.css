@@ -472,12 +472,14 @@ a.lbl:hover { border-bottom-style: solid; }
   box-shadow: 0 18px 44px -22px rgba(0, 0, 0, .6), inset 0 0 0 1px var(--rule);
   pointer-events: none; will-change: transform; backdrop-filter: blur(6px);
   animation: psp-in .45s cubic-bezier(.16, .84, .26, 1) both; }
-.psp.rest { pointer-events: auto; }
+.psp.ride { pointer-events: none; }        /* attached to the cursor: never something you can chase */
+.psp.rest { pointer-events: auto; left: 50%; bottom: 24px; top: auto;
+  transform: translateX(-50%); transition: none; }
 .psp.out { opacity: 0; transition: opacity .45s ease; }
 @keyframes psp-in { from { opacity: 0; transform: translate3d(0, 0, 0) scale(.96); } }
 /* Docked, when there is no cursor to follow or motion is unwelcome. */
 @media (prefers-reduced-motion: reduce), (hover: none), (pointer: coarse) {
-  .psp { top: auto; left: 50%; bottom: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  .psp, .psp.rest { top: auto; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px));
     transform: translateX(-50%) !important; animation: none; pointer-events: auto; }
 }
 .psp-x { position: absolute; top: 6px; right: 7px; width: 26px; height: 26px; border: 0; border-radius: 50%;
