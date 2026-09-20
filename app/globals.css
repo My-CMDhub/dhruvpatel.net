@@ -333,11 +333,7 @@ a.lbl:hover { border-bottom-style: solid; }
   ::view-transition-group(*) { animation-duration: .5s; animation-timing-function: cubic-bezier(.22, .8, .2, 1); }
   .js .scene:not(.in) .mk-new { transform: translateX(var(--dx)); }
   .js .scene:not(.in) .arrow { opacity: 0; }
-  .cr-card button { transition: opacity .35s ease, filter .35s ease, transform .35s ease; }
-  .cr-bloom.on { animation: cr-breathe 3.4s ease-in-out infinite; }
-  @keyframes cr-breathe { 50% { opacity: .55; } }
-  .rb-guides { animation: cr-drift 26s linear infinite; }
-  @keyframes cr-drift { to { transform: translateY(-1194px); } } /* one full period of the slower curve */
+  .cr-card button { transition: opacity .45s ease, filter .45s ease, transform .45s ease; }
   .js .scene .probes li { transition: opacity .5s ease, transform .6s cubic-bezier(.22, .8, .2, 1); transition-delay: calc(.3s + var(--i) * .35s); }
   .js .scene:not(.in) .probes li { opacity: 0; transform: translateY(8px); }
   .js .scene:not(.in) .band { transform: scaleX(var(--s)); }
@@ -346,56 +342,52 @@ a.lbl:hover { border-bottom-style: solid; }
   @keyframes settle { from { opacity: 0; transform: translateY(8px); } }
 }
 
-/* Two real calls (S53): the recording as a ribbon, cards pinned to their moment in time. */
+/* Two real calls (S54): the present is fixed in the middle — a lens of the recording's own
+   loudness — and the words drift past it, the caller above, Ovela below. */
 .callr { margin: 40px 0 8px; padding: 28px 28px 22px; border: 1px solid var(--rule); border-radius: 14px; background: color-mix(in srgb, var(--ink) 3%, var(--bg)); }
 .cr-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
 .cr-tabs button { flex: 1 1 220px; text-align: left; font: 600 15px var(--f-sans); color: var(--ink2); background: none; border: 1px solid var(--rule); border-radius: 10px; padding: 10px 14px; cursor: pointer; }
 .cr-tabs button small { display: block; font: 400 12.5px var(--f-sans); color: var(--muted); margin-top: 2px; }
 .cr-tabs button[aria-pressed="true"] { border-color: var(--b); color: var(--ink); }
 
-.cr-view { position: relative; height: min(62vh, 560px); margin-top: 20px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none;
-  -webkit-mask-image: linear-gradient(transparent, #000 16%, #000 84%, transparent); mask-image: linear-gradient(transparent, #000 16%, #000 84%, transparent); }
-.cr-view::-webkit-scrollbar { display: none; }
-.cr-track { position: relative; }
-/* The ribbon is drawn twice: a faint trace of the whole call, and the same drawing lit through a
-   soft window that follows the audio. Only --y changes as it plays, so nothing re-renders. */
-.rb { position: absolute; left: 50%; transform: translateX(-50%); top: 0; }
-.rb-guides path { fill: none; stroke: var(--b); stroke-width: 1.1; opacity: .13; vector-effect: non-scaling-stroke; }
-.rb-guides path:last-child { stroke: var(--a); opacity: .1; }
-.rb-caller rect { fill: color-mix(in srgb, var(--ink) 46%, transparent); }
-.rb-agent rect { fill: var(--b); }
-.cr-lit .rb-agent rect { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--b) 70%, transparent)); }
-.cr-lit .rb-caller rect { fill: color-mix(in srgb, var(--ink) 72%, transparent); }
-.cr-trace, .cr-lit, .cr-bloom { position: absolute; inset: 0; pointer-events: none; }
-/* At rest the whole call is visible; once it plays, the light does the pointing. */
-.cr-trace { opacity: .42; transition: opacity .6s ease; }
-.cr-track.playing .cr-trace { opacity: .12; }
-.cr-lit { --y: 60px;
-  -webkit-mask-image: radial-gradient(130% 190px at 50% var(--y), #000 0%, #000 34%, transparent 76%);
-  mask-image: radial-gradient(130% 190px at 50% var(--y), #000 0%, #000 34%, transparent 76%); }
-.cr-bloom { background: radial-gradient(160px 120px at 50% var(--y), color-mix(in srgb, var(--b) 26%, transparent), transparent 70%); opacity: 0; transition: opacity .5s ease; }
-.cr-track.playing .cr-bloom { opacity: 1; }
+.cr-stage { --x: 0px; position: relative; height: 400px; margin-top: 20px; overflow: hidden; cursor: grab; touch-action: pan-y;
+  border-radius: 12px; background: radial-gradient(60% 70% at 50% 50%, color-mix(in srgb, var(--ink) 5%, transparent), transparent 70%);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent); mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent); }
+.cr-stage:active { cursor: grabbing; }
+.cr-strip { position: absolute; inset: 0 auto 0 50%; transform: translateX(var(--x)); }
+.cr-axis { position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--rule); }
+.cr-lens { position: absolute; left: 50%; top: 50%; width: 280px; height: 200px; transform: translate(-50%, -50%); pointer-events: none; }
+.cr-stage.playing .cr-lens { filter: drop-shadow(0 0 14px color-mix(in srgb, var(--b) 30%, transparent)); }
 
-.cr-turns { list-style: none; margin: 0; }
-.cr-card { position: absolute; width: min(36%, 310px); }
-.cr-caller { left: 0; text-align: right; }
-.cr-agent { right: 0; }
-.cr-card button { width: 100%; text-align: inherit; background: color-mix(in srgb, var(--ink) 4%, var(--bg)); border: 1px solid var(--rule); border-radius: 12px; padding: 10px 13px; cursor: pointer; display: grid; gap: 3px;
-  opacity: calc(1 - var(--d, 0) * .8); filter: blur(calc(var(--d, 0) * 1.1px)); transform: scale(calc(1 - var(--d, 0) * .05)); }
-.cr-card.on button { border-color: var(--b); background: color-mix(in srgb, var(--b) 10%, var(--bg)); opacity: 1; filter: none; transform: none; }
+.cr-card { position: absolute; width: 236px; margin-left: -118px; }
+.cr-caller { bottom: calc(50% + 108px); }
+.cr-agent { top: calc(50% + 108px); }
+.cr-card button { width: 100%; text-align: left; background: color-mix(in srgb, var(--ink) 4%, var(--bg)); border: 1px solid var(--rule); border-radius: 12px; padding: 10px 13px; cursor: inherit; display: grid; gap: 3px;
+  opacity: .22; filter: blur(1.1px); transform: scale(.94); }
+.cr-card.on button { opacity: 1; filter: none; transform: none; border-color: var(--b); background: color-mix(in srgb, var(--b) 9%, var(--bg)); }
 .cr-who { font: 500 10.5px var(--f-mono); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); }
 .cr-agent .cr-who { color: var(--b); }
 .cr-text { font: 400 15px/1.45 var(--f-sans); color: var(--ink); }
+.cr-card .cr-text { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
 .cr-caller .cr-text { color: var(--ink2); }
-.cr-meta { display: flex; flex-wrap: wrap; gap: 8px; justify-content: inherit; }
-.cr-caller .cr-meta { justify-content: flex-end; }
+.cr-meta { display: flex; flex-wrap: wrap; gap: 8px; }
 .cr-meta b { font: 500 11px var(--f-mono); }
 .cr-gap { color: var(--b); } .cr-hit { color: var(--prov); } .cr-over { color: var(--a); }
 
 .cr-bar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 16px; }
 .cr-play { font: 600 14px var(--f-sans); color: var(--bg); background: var(--ink); border: 0; border-radius: 999px; padding: 10px 20px; min-height: 42px; cursor: pointer; }
 .cr-play[aria-pressed="true"] { background: var(--b); }
-.cr-time, .cr-state { font: 500 12.5px var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.cr-scrub { flex: 1 1 180px; min-width: 140px; accent-color: var(--b); }
+.cr-time { font: 500 12.5px var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.cr-read { margin-top: 16px; }
+.cr-read summary { cursor: pointer; font: 500 12.5px var(--f-mono); color: var(--a); list-style: none; }
+.cr-read summary::-webkit-details-marker { display: none; }
+.cr-read[open] summary { margin-bottom: 8px; }
+.cr-read ol { list-style: none; border-top: 1px solid var(--rule); }
+.cr-read li { border-bottom: 1px solid var(--rule); }
+.cr-read li button { display: grid; gap: 3px; width: 100%; text-align: left; background: none; border: 0; padding: 10px 4px; cursor: pointer; }
+.cr-read .cr-text { font-size: 15px; }
 .cr-note { font: italic 15px/1.5 var(--f-serif); color: var(--ink2); margin-top: 16px; max-width: 62ch; }
 .callr .cap { margin-top: 10px; }
 
@@ -410,13 +402,12 @@ a.lbl:hover { border-bottom-style: solid; }
   .ruler text { font-size: 28px; }
   .jr-top .jr-lbl:not(.jr-now-l) { display: none; }
   .callr { padding: 20px 14px 18px; margin-left: -4px; margin-right: -4px; }
-  .cr-view { height: 64vh; }
-  .rb { left: 34px; transform: translateX(-50%) scaleX(.55); }
-  .cr-lit { -webkit-mask-image: radial-gradient(90% 150px at 34px var(--y), #000 0%, #000 34%, transparent 76%); mask-image: radial-gradient(90% 150px at 34px var(--y), #000 0%, #000 34%, transparent 76%); }
-  .cr-bloom { background: radial-gradient(90px 90px at 34px var(--y), color-mix(in srgb, var(--b) 18%, transparent), transparent 70%); }
-  .cr-card { width: calc(100% - 52px); left: 52px; right: auto; text-align: left; }
-  .cr-caller .cr-meta { justify-content: flex-start; }
-  .cr-text { font-size: 14.5px; }
+  .cr-stage { height: 372px; -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+  .cr-lens { width: 190px; height: 160px; }
+  .cr-card { width: 205px; margin-left: -102px; }
+  .cr-caller { bottom: calc(50% + 92px); }
+  .cr-agent { top: calc(50% + 92px); }
+  .cr-text { font-size: 14px; }
   .probes li { grid-template-columns: 14px minmax(0, 1fr); row-gap: 4px; }
   .probes b { grid-column: 2; }
   .probes q { font-size: 16px; }
