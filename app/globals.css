@@ -334,8 +334,10 @@ a.lbl:hover { border-bottom-style: solid; }
   .js .scene:not(.in) .mk-new { transform: translateX(var(--dx)); }
   .js .scene:not(.in) .arrow { opacity: 0; }
   .cr-card button { transition: opacity .35s ease, filter .35s ease, transform .35s ease; }
-  .cr-mark.on { animation: cr-breathe 2.6s ease-in-out infinite; }
-  @keyframes cr-breathe { 50% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--a) 9%, transparent); } }
+  .cr-bloom.on { animation: cr-breathe 3.4s ease-in-out infinite; }
+  @keyframes cr-breathe { 50% { opacity: .55; } }
+  .rb-guides { animation: cr-drift 26s linear infinite; }
+  @keyframes cr-drift { to { transform: translateY(-1194px); } } /* one full period of the slower curve */
   .js .scene .probes li { transition: opacity .5s ease, transform .6s cubic-bezier(.22, .8, .2, 1); transition-delay: calc(.3s + var(--i) * .35s); }
   .js .scene:not(.in) .probes li { opacity: 0; transform: translateY(8px); }
   .js .scene:not(.in) .band { transform: scaleX(var(--s)); }
@@ -355,15 +357,27 @@ a.lbl:hover { border-bottom-style: solid; }
   -webkit-mask-image: linear-gradient(transparent, #000 16%, #000 84%, transparent); mask-image: linear-gradient(transparent, #000 16%, #000 84%, transparent); }
 .cr-view::-webkit-scrollbar { display: none; }
 .cr-track { position: relative; }
-.rb { position: absolute; left: 50%; transform: translateX(-50%); top: 0; opacity: .85; }
-.rb-spine { stroke: var(--rule); stroke-width: 1; vector-effect: non-scaling-stroke; }
-.rb-caller rect { fill: color-mix(in srgb, var(--ink) 42%, transparent); }
-.rb-agent rect { fill: color-mix(in srgb, var(--b) 78%, transparent); }
-
-.cr-mark { position: absolute; left: 50%; width: 13px; height: 13px; margin: -6.5px 0 0 -6.5px; border-radius: 50%; background: var(--a); box-shadow: 0 0 0 4px color-mix(in srgb, var(--a) 18%, transparent); }
+/* The ribbon is drawn twice: a faint trace of the whole call, and the same drawing lit through a
+   soft window that follows the audio. Only --y changes as it plays, so nothing re-renders. */
+.rb { position: absolute; left: 50%; transform: translateX(-50%); top: 0; }
+.rb-guides path { fill: none; stroke: var(--b); stroke-width: 1.1; opacity: .13; vector-effect: non-scaling-stroke; }
+.rb-guides path:last-child { stroke: var(--a); opacity: .1; }
+.rb-caller rect { fill: color-mix(in srgb, var(--ink) 46%, transparent); }
+.rb-agent rect { fill: var(--b); }
+.cr-lit .rb-agent rect { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--b) 70%, transparent)); }
+.cr-lit .rb-caller rect { fill: color-mix(in srgb, var(--ink) 72%, transparent); }
+.cr-trace, .cr-lit, .cr-bloom { position: absolute; inset: 0; pointer-events: none; }
+/* At rest the whole call is visible; once it plays, the light does the pointing. */
+.cr-trace { opacity: .42; transition: opacity .6s ease; }
+.cr-track.playing .cr-trace { opacity: .12; }
+.cr-lit { --y: 60px;
+  -webkit-mask-image: radial-gradient(130% 190px at 50% var(--y), #000 0%, #000 34%, transparent 76%);
+  mask-image: radial-gradient(130% 190px at 50% var(--y), #000 0%, #000 34%, transparent 76%); }
+.cr-bloom { background: radial-gradient(160px 120px at 50% var(--y), color-mix(in srgb, var(--b) 26%, transparent), transparent 70%); opacity: 0; transition: opacity .5s ease; }
+.cr-track.playing .cr-bloom { opacity: 1; }
 
 .cr-turns { list-style: none; margin: 0; }
-.cr-card { position: absolute; width: min(41%, 330px); }
+.cr-card { position: absolute; width: min(36%, 310px); }
 .cr-caller { left: 0; text-align: right; }
 .cr-agent { right: 0; }
 .cr-card button { width: 100%; text-align: inherit; background: color-mix(in srgb, var(--ink) 4%, var(--bg)); border: 1px solid var(--rule); border-radius: 12px; padding: 10px 13px; cursor: pointer; display: grid; gap: 3px;
@@ -397,8 +411,9 @@ a.lbl:hover { border-bottom-style: solid; }
   .jr-top .jr-lbl:not(.jr-now-l) { display: none; }
   .callr { padding: 20px 14px 18px; margin-left: -4px; margin-right: -4px; }
   .cr-view { height: 64vh; }
-  .rb { left: 34px; transform: translateX(-50%) scaleX(.5); }
-  .cr-mark { left: 34px; }
+  .rb { left: 34px; transform: translateX(-50%) scaleX(.55); }
+  .cr-lit { -webkit-mask-image: radial-gradient(90% 150px at 34px var(--y), #000 0%, #000 34%, transparent 76%); mask-image: radial-gradient(90% 150px at 34px var(--y), #000 0%, #000 34%, transparent 76%); }
+  .cr-bloom { background: radial-gradient(90px 90px at 34px var(--y), color-mix(in srgb, var(--b) 18%, transparent), transparent 70%); }
   .cr-card { width: calc(100% - 52px); left: 52px; right: auto; text-align: left; }
   .cr-caller .cr-meta { justify-content: flex-start; }
   .cr-text { font-size: 14.5px; }
