@@ -72,6 +72,18 @@ export function Ruler({ scene }: { scene: Scene }) {
         ))}
       </ol>
     )
+  // Handover isn't a scale either: the path not taken, struck through, then the one that was.
+  if (r.scale === 'handover')
+    return (
+      <div className="hand">
+        <p className="hand-not"><s>{r.not}</s><b>not taken</b></p>
+        <ul className="hand-is">
+          {r.is.map((x, i) => (
+            <li key={i} style={{ ['--i' as string]: i }}><span className="hk" aria-hidden="true" />{x}</li>
+          ))}
+        </ul>
+      </div>
+    )
   const { t, pos } = ticks(r)
   const title = `${scene.what}: ${scene.from} to ${scene.to}`
 

@@ -31,6 +31,7 @@ type Ruler =
   | { scale: 'log'; from: number; to: number } // ms, 1 ms … 10 s
   | { scale: 'band' } // capstone amount rule, drawn by BandRuler
   | { scale: 'probes'; probes: { q: string; answered: boolean }[] } // questions put to a live system, as recorded
+  | { scale: 'handover'; not: string; is: string[] } // what a customer hands over: the path not taken, then the one taken
 
 export type Row = { tag: 'SAW' | 'CHANGED' | 'HOLDS' | 'NOT YET'; text: string; value?: string; sub?: string }
 
@@ -113,19 +114,24 @@ export const scenes: Scene[] = [
     group: 'internship',
     name: 'Silverpond',
     kind: 'an agent architecture for a multi-tenant platform · internship',
-    what: 'The agent’s first-turn search',
-    from: '23.4 s',
-    to: '3.9 s',
-    ruler: { scale: 'linear', max: 25, unit: 's', from: 23.4, to: 3.9 },
-    label: { status: 'measured', note: 'repeated runs', href: '/work/silverpond/#src-tests' },
-    notYet: 'a fast cold start · ~43 s',
+    what: 'What a new customer hands over',
+    from: 'an AWS key we store',
+    to: 'nothing we keep',
+    ruler: {
+      scale: 'handover',
+      not: 'A permanent AWS access key, stored by us',
+      is: ['A role in their own account, assumed for an hour at a time', 'Two values and one choice, typed once', 'Revocable by them, at any time'],
+    },
+    label: { status: 'first-hand', note: 'the design I proposed, prototyped and handed over', href: '/work/silverpond/#src-review' },
+    notYet: 'a settled answer for how the agent picks which case you mean',
     ledger: [
-      { tag: 'SAW', text: 'Left to search the knowledge base however it liked, the agent wandered.', value: '23.4 s', sub: 'first-turn search' },
-      { tag: 'CHANGED', text: 'Index-first retrieval: turn one reads only the index, turn two reads at most two files in parallel.', value: '3.9 s', sub: 'first-turn search' },
-      { tag: 'CHANGED', text: 'The reference corpus moved into a memory store, out of every request.', value: '−3.5k', sub: 'tokens per request' },
-      { tag: 'CHANGED', text: 'Cold start, with the same two changes.', value: '59.2 → 42.6 s', sub: 'cold start' },
-      { tag: 'HOLDS', text: 'The second turn, which reads at most two files.', value: '8.7 s', sub: 'repeated runs' },
-      { tag: 'NOT YET', text: 'A cold start still takes about 43 seconds.' },
+      { tag: 'SAW', text: 'The brief was one paragraph. It didn’t say how to split the work across three systems, or how to make it safe for the second customer, let alone the fiftieth.' },
+      { tag: 'SAW', text: 'The obvious path was to ask each customer for an AWS access key and store it.' },
+      { tag: 'CHANGED', text: 'The platform assumes a role inside the customer’s own account instead, tied to an identifier bound to that customer, so one tenant’s trust can’t be replayed against another’s. The credentials last an hour and the customer can revoke them at any time.', value: '0 keys', sub: 'stored' },
+      { tag: 'CHANGED', text: 'Setup became a stack the customer launches themselves, then two values and one choice. Everything after it is automated.', value: '~2 min', sub: 'of the customer’s own clicking · projected' },
+      { tag: 'CHANGED', text: 'The design was proven in a FastAPI prototype and reviewed before anyone changed the production app.' },
+      { tag: 'HOLDS', text: 'The agent’s first-turn search, once retrieval read an index before it read files.', value: '23.4 s → 3.9 s', sub: 'repeated runs' },
+      { tag: 'NOT YET', text: 'How the agent should decide which case you’re asking about — an explicit ID, the most recent one, or inferred — was never settled while I was there.' },
     ],
   },
   {

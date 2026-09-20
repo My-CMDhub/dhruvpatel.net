@@ -39,10 +39,10 @@ const TABS: Record<'q' | 'c', { label: string; steps: Step[] }> = {
   ] },
   c: { label: 'A new customer', steps: [
     { title: 'One CloudFormation stack, in their own AWS account', text: 'It creates a role that trusts Highlighter only when the ExternalId is that customer’s account ID, plus the network and the Fargate cluster for the worker.', path: ['hd'], focus: ['hd'], cust: true },
-    { title: 'Three inputs', text: 'Role ARN, workspace ID and region, typed into Highlighter. Nothing else is asked for.', path: ['op', 'gw'], focus: ['op', 'gw'] },
+    { title: 'Two values and one choice', text: 'The role’s ARN and the workspace ID, typed in, plus one selection from the list already on their configuration page. Nothing else is asked for, and no key is ever sent.', path: ['op', 'gw'], focus: ['op', 'gw'] },
     { title: 'Highlighter assumes the role through STS', text: 'The ExternalId has to match the customer’s account ID, the defence against a confused-deputy attack. The credentials it gets last one hour.', path: ['gw', 'hd'], focus: ['gw', 'hd'], cust: true },
-    { title: 'A job provisions the rest', text: 'A six-step state machine creates the agent, its environment and its memory store, then points the customer’s worker at the new environment.', path: ['gw', 'br', 'hd'], focus: ['gw', 'br', 'hd'] },
-    { title: 'Nothing to store', text: 'The customer can revoke the role at any time. Tenants are isolated at six layers: database scope, container cluster, agent environment, memory store, vault and network.', path: ['gw'], focus: ['gw'], metric: '0 AWS keys stored' },
+    { title: 'A job provisions the rest, in a second phase', text: 'The environment can’t exist while the stack is running — it can only be created once the delegated role does. So the backend creates the agent, its environment and its memory store afterwards, then points the customer’s worker at the new environment.', path: ['gw', 'br', 'hd'], focus: ['gw', 'br', 'hd'] },
+    { title: 'Nothing to store', text: 'The customer can revoke the role at any time. Tenants are isolated at six layers: database scope, container cluster, agent environment, memory store, vault and network.', path: ['gw'], focus: ['gw'], metric: '0 AWS keys stored · about 2 minutes of the customer’s own clicking, projected from the steps rather than timed end to end' },
   ] },
 }
 const OUT_OF_SCOPE: Step = { title: 'Out of scope: refused before any tool runs', text: 'Asked to reach into a staging database, the agent classifies the query first and refuses it. No tool call is made.', path: ['br', 'gw'], focus: ['br', 'gw'], metric: 'refused in 3.3 s · 0 tool calls · measured, repeated runs' }
@@ -110,7 +110,7 @@ function Diagram({ layout, step, hosted, inspect, onInspect, refused, calm }: {
 }
 
 export function SilverpondFlow() {
-  const [tab, setTab] = useState<'q' | 'c'>('q')
+  const [tab, setTab] = useState<'q' | 'c'>('c')
   const [i, setI] = useState(0)
   const [hosted, setHosted] = useState(false)
   const [inspect, setInspect] = useState<NodeId | null>(null)

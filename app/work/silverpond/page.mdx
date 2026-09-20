@@ -1,11 +1,11 @@
 import { scenes } from '@/data/figures'
 
-export const metadata = { title: 'Silverpond', description: 'An agent architecture for a multi-tenant platform, where customers onboard with three inputs and no AWS keys are stored.' }
+export const metadata = { title: 'Silverpond', description: 'An agent architecture for a multi-tenant platform, where a customer onboards without handing over a credential and no AWS keys are stored.' }
 export const s = scenes.find((x) => x.slug === 'silverpond')
 
 <CaseHead
   title="Silverpond"
-  result="An architecture in which each new customer onboards with three inputs and Silverpond stores no AWS keys at all. I proved it in a FastAPI prototype, reviewed it with the senior engineers, then implemented it in the Rails product."
+  result="An architecture in which a new customer onboards without handing over a single credential: they launch a stack in their own account, type two values and pick one option, and Silverpond stores no AWS keys at all. I proved it in a FastAPI prototype, reviewed it with the senior engineers, then implemented it in the Rails product."
   meta="Software Engineer (AI) intern · May–Aug 2026 · Python, FastAPI, Ruby on Rails, AWS (STS, ECS Fargate, CloudFormation), Anthropic Managed Agents"
 />
 
@@ -17,6 +17,37 @@ export const s = scenes.find((x) => x.slug === 'silverpond')
 
 The brief was one paragraph: operators should be able to chat with an agent about a monitoring case, the agent should query the relevant data, the knowledge should be searchable, and users should be able to add lessons. What it didn't say was how to split that work across three systems (the platform's Rails app, Anthropic's managed agents, and a worker container), or how to do it safely for every customer who comes after the first. That became the question I brought to the senior review: *how do we split responsibility cleanly, securely, and in a way that scales to every new customer?*
 
+### I didn't want to hold anyone's keys
+
+The simple path was to ask each customer for AWS access keys. Instead, Silverpond assumes a role in the customer's account through STS, with the `ExternalId` bound to that customer's account ID (the defence against a confused-deputy attack). Credentials last one hour, and the customer can revoke access at any time. Onboarding is a one-click CloudFormation stack, then two values and one choice from a list already on their configuration page. Tenants are isolated at six layers: database scope, container cluster, agent environment, memory store, vault and network.
+
+### Four things I assumed, and what the system actually did
+
+Everything below is about how Anthropic's managed agents and AWS behave, not about anything internal.
+Each one cost me a day and changed the design.
+
+**A managed agent is not a text stream.** I expected the usual shape: one question, one stream of
+tokens, close. What arrives instead is a run of events — the agent using a tool, the session going
+idle and asking for something, a tool result coming back, the session running again — and only then a
+message. A client written for a token stream misreads those events, or hangs up on them. It has to be
+modelled as a stateful workflow that happens to emit text at the end.
+
+**Provisioning and runtime creation are not one deployment.** I assumed one CloudFormation run could
+stand the whole thing up and set the environment's identifier on the worker. It can't: the environment
+doesn't exist yet at that point, and can only be created once the delegated role does. The deployment
+became two phases, with the backend creating the environment afterwards and updating the running
+service with it.
+
+**Connectivity is not capability.** The worker was healthy and polling, so I expected the agent could
+run commands in it. It couldn't, and said so politely. A live queue and permission to use it are two
+different boundaries, and the toolset has to be attached when the agent is created, not when the
+worker connects.
+
+**Memory is infrastructure, not a session parameter.** I tried to attach memory stores per chat
+session, the way you'd pass retrieval context. They aren't session-scoped: they're persistent
+resources belonging to the agent, and documents go to the store itself. Storage lifecycle had to be
+pulled out of conversation lifecycle entirely.
+
 ### Two products were being treated as one
 
 The direction was Claude's managed agents on AWS, but the feature requests kept describing what Amazon Bedrock provides. I compared the two side by side, showed where the requirements were mixing them, and we settled on managed agents. Then I built and tried both ways of running them: a self-hosted worker in the customer's AWS account, and Anthropic's hosted sandbox. They trade off differently: the hosted sandbox needs no standing worker per customer, so it's cheaper to run, while self-hosting keeps execution and data inside the customer's own account. The review deck presents both, with self-hosted as the primary path for enterprise customers.
@@ -25,17 +56,17 @@ The direction was Claude's managed agents on AWS, but the feature requests kept 
 
 I built the workflow in FastAPI first, a stack I could move fast in, so the design could be proven before anyone committed to changing the Rails product.
 
-### The agent was slow because it was free to wander
-
-<Ledger rows={s.ledger} />
-
-<L s="measured" n="repeated runs · named stress and latency tests" src="tests" />
-
 ### Scope was enforced in code, not asked for in the prompt
 
 Queries that should never run, such as reaching into the staging database, are classified into tiers before the model acts, and refused in 3.3 s with zero tool calls.
 
 <L s="measured" n="repeated runs" src="tests" />
+
+### The agent was slow because it was free to wander
+
+<Ledger rows={s.ledger} />
+
+<L s="measured" n="repeated runs · named stress and latency tests" src="tests" />
 
 ### Internal reasoning was leaking into answers
 
@@ -44,10 +75,6 @@ I extracted the answer by a marker and kept intermediate tool turns silent, whic
 ### A platform limit I didn't decide on alone
 
 The managed-agent API only returned text when a turn finished, so nothing streamed. I shipped a typewriter-style display as a stopgap, and put the real question to the team: is block-by-block latency acceptable, or do we simulate streaming?
-
-### Customer credentials
-
-The simple path was to ask each customer for AWS access keys. Instead, Silverpond assumes a role in the customer's account through STS, with the `ExternalId` bound to that customer's account ID (the defence against a confused-deputy attack). Credentials last one hour, and the customer can revoke access at any time. Onboarding is a one-click CloudFormation stack plus three inputs. Tenants are isolated at six layers: database scope, container cluster, agent environment, memory store, vault and network.
 
 ### The integration fought back, and I wrote it down
 
@@ -58,12 +85,16 @@ Signing requests to the managed-agent gateway, and knowing which storage primiti
 - An architecture review the senior team could decide from.
 - A six-step provisioning state machine.
 - My Rails integration (schema, STS role assumption, the managed-agent API client, the provisioning job and the onboarding UI), passing 8/8 RSpec with 0 RuboCop offences.
-- Onboarding reduced to three inputs, with zero stored AWS credentials.
+- Onboarding reduced to two values and one choice, with zero stored AWS credentials.
 
 ## What it still didn't do at handover
 
 - **Two integration threads were still open:** attaching files to the memory store, and the worker's request signing.
 - **The worker processes one case at a time.** Its concurrency policy was a question for the team.
+- **How the agent should decide which case you mean was never settled.** With the prompt I was given
+  it needed an explicit case ID before it would answer, which is fine for a link into a case and wrong
+  for someone just asking a question. Explicit ID, most recent case, or inferred from the question —
+  it was still open when my placement ended.
 - **A cold start still took ~43 s.**
 
 ## Sources
