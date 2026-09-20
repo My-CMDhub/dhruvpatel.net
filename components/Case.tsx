@@ -1,5 +1,6 @@
 import type { Label } from '@/data/figures'
 import { Lbl, ext } from './Label'
+import { ForYou } from './ForYou'
 
 /** The top of every case page: title, one-line result with its label, meta line, links. */
 export function CaseHead({ title, result, label, meta, links }: {
@@ -14,6 +15,7 @@ export function CaseHead({ title, result, label, meta, links }: {
       <p className="back"><a href="/#work">← Work</a></p>
       <h1 style={{ ['viewTransitionName' as string]: `name-${title.toLowerCase()}` }}>{title}</h1>
       <p className="result">{result}</p>
+      <ForYou slug={title.toLowerCase()} />
       {label && <p className="cap"><Lbl l={label} /></p>}
       <p className="meta">{meta}</p>
       {links && (

@@ -5,7 +5,7 @@ export const s = scenes.find((x) => x.slug === 'silverpond')
 
 <CaseHead
   title="Silverpond"
-  result="An architecture in which a new customer onboards without handing over a single credential: they launch a stack in their own account, type two values and pick one option, and Silverpond stores no AWS keys at all. I proved it in a FastAPI prototype, reviewed it with the senior engineers, then implemented it in the Rails product."
+  result="An architecture in which a new customer onboards without handing over a single credential: they launch a stack in their own account, type two values and pick one option, and Silverpond stores no AWS keys at all. I proved it in a FastAPI prototype, reviewed it with the senior engineers, then carried it into the production Rails app with their guidance."
   meta="Software Engineer (AI) intern · May–Aug 2026 · Python, FastAPI, Ruby on Rails, AWS (STS, ECS Fargate, CloudFormation), Anthropic Managed Agents"
 />
 
@@ -90,7 +90,7 @@ Signing requests to the managed-agent gateway, and knowing which storage primiti
 
 - An architecture review the senior team could decide from.
 - A six-step provisioning state machine, running behind the five steps the customer sees.
-- My Rails integration (schema, STS role assumption, the managed-agent API client, the provisioning job and the onboarding UI), passing 8/8 RSpec with 0 RuboCop offences (`#src-review`).
+- The integration into the production app, carried a component at a time with the senior engineers' guidance. The architecture and the system design were mine; Rails I was learning as I went.
 - Onboarding reduced to two values typed in and one option chosen, with zero stored AWS credentials.
 
 ## What it still didn't do at handover

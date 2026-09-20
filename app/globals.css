@@ -341,6 +341,13 @@ a.lbl:hover { border-bottom-style: solid; }
   @keyframes jr-flow { to { background-position: 10px 0; } }
   html.intro-go .top { transition-delay: 1.25s; }
 
+  /* The sentence waits for the intro to finish rather than competing with it. */
+  .psp { animation: psp-in .7s cubic-bezier(.22, .8, .2, 1) both; animation-delay: .35s; }
+  .intro .psp { animation-delay: 3.1s; }
+  @keyframes psp-in { from { opacity: 0; transform: translateY(6px); } }
+  .psp-caret { animation: psp-blink 1.05s steps(1) infinite; }
+  @keyframes psp-blink { 50% { opacity: 0; } }
+
   /* Page to page (S36, reworked S56): a project's name travels into its case page, and the page it
      lands on travels with it — one movement, rather than a blink underneath a flying word.
      The browser morphs a *photograph* of the heading, so a 30px word stretched to 88px is a blurred
@@ -460,6 +467,28 @@ a.lbl:hover { border-bottom-style: solid; }
 .cr-read .cr-text { font-size: 15px; }
 .cr-note { font: italic 15px/1.5 var(--f-serif); color: var(--ink2); margin-top: 16px; max-width: 62ch; }
 .callr .cap { margin-top: 10px; }
+
+/* Who is reading (S57). One sentence in the hero, a line streamed back in the manner of the
+   Agent-OS cursor overlay, and a paragraph at the top of each case page in their terms. */
+.psp { margin-top: 26px; max-width: 46ch; }
+.psp-ask { font: 400 16px/1.6 var(--f-sans); color: var(--ink2); }
+.psp-pick { position: relative; display: inline-block; border-bottom: 1px dashed var(--rule); }
+.psp-pick:hover, .psp-pick:focus-within { border-bottom-color: var(--b); }
+.psp-pick b { font: 500 16px/1.6 var(--f-sans); color: var(--b); white-space: nowrap; }
+.psp-pick b span { font-size: 11px; color: var(--muted); margin-left: 5px; }
+.psp-pick select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;
+  appearance: none; border: 0; padding: 0; margin: 0; font: inherit; }
+.psp-pick:focus-within { outline: 2px solid var(--a); outline-offset: 3px; border-radius: 2px; }
+.psp-say { font: italic 400 16px/1.55 var(--f-serif); color: var(--ink2); margin-top: 10px;
+  min-height: 1.55em; opacity: 0; }
+.psp-say.on { opacity: 1; }
+.psp-say.out { opacity: 0; transition: opacity .4s ease; }
+.psp-caret { display: inline-block; width: 2px; height: 1em; margin-left: 2px; vertical-align: -.12em;
+  background: var(--b); }
+
+.foryou { margin-top: 22px; padding-left: 14px; border-left: 2px solid color-mix(in srgb, var(--b) 45%, var(--rule)); max-width: 56ch; }
+.foryou-who { font: 500 11px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+.foryou-txt { font: 400 16px/1.6 var(--f-sans); color: var(--ink2); }
 
 /* Phone (S30) */
 @media (max-width: 720px) {

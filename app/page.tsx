@@ -2,6 +2,7 @@ import { also, scenes, site } from '@/data/figures'
 import { Scene } from '@/components/Scene'
 import { Journey } from '@/components/Journey'
 import { Signature } from '@/components/Signature'
+import { Perspective } from '@/components/Perspective'
 
 export default function Home() {
   return (
@@ -11,6 +12,7 @@ export default function Home() {
         <Journey />
         <p className="place">{site.place}</p>
         <p className="pos">{site.positioning}</p>
+        <Perspective />
       </section>
       <div id="work">
         {(['project', 'internship'] as const).map((g) => (
