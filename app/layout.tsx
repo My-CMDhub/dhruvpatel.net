@@ -22,6 +22,7 @@ export const metadata: Metadata = {
 // Intro (S35): home page, once per visit, motion allowed. The name opens centred, settles into place, the
 // measuring line draws, the rest arrives. Any scroll, tap or key finishes it at once; 3.5 s is a hard stop.
 const motion = `(function(){var d=document.documentElement;d.classList.add('js');
+try{d.setAttribute('data-reader',localStorage.getItem('reader')||'look')}catch(e){}
 var calm=matchMedia('(prefers-reduced-motion: reduce)').matches,seen=1;
 try{seen=sessionStorage.getItem('intro');sessionStorage.setItem('intro','1')}catch(e){}
 if(!calm&&!seen&&location.pathname==='/'&&!location.hash){d.classList.add('intro');

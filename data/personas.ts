@@ -1,7 +1,7 @@
-// Who is reading. One sentence in the hero lets a visitor say so; the choice is remembered and
-// swaps a short paragraph at the top of each case page. No model runs at any point — every line
-// below is written once, by hand, and shipped as data. `look` is the default and has to be the best
-// general answer: nobody should need to pick.
+// Who is reading. A card arrives beside the cursor and lets a visitor say so; the choice is
+// remembered and swaps a short paragraph at the top of each case page. No model runs at any point — every line
+// below is written once, by hand, and shipped as data. `look` is the default, and has to be good enough
+// that a visitor who never answers loses nothing.
 
 export type PersonaId = 'look' | 'founder' | 'engineer' | 'pm' | 'recruiter'
 

@@ -470,23 +470,25 @@ a.lbl:hover { border-bottom-style: solid; }
 .psp { position: fixed; top: 0; left: 0; z-index: 60; width: min(340px, calc(100vw - 24px));
   padding: 13px 15px 14px; border-radius: 13px; background: color-mix(in srgb, var(--ink) 4%, var(--bg));
   box-shadow: 0 18px 44px -22px rgba(0, 0, 0, .6), inset 0 0 0 1px var(--rule);
-  pointer-events: none; will-change: transform; backdrop-filter: blur(6px);
-  animation: psp-in .45s cubic-bezier(.16, .84, .26, 1) both; }
-.psp.ride { pointer-events: none; }        /* attached to the cursor: never something you can chase */
-.psp.rest { pointer-events: auto; left: 50%; bottom: 24px; top: auto;
-  transform: translateX(-50%); transition: none; }
+  pointer-events: none; animation: psp-in .45s cubic-bezier(.16, .84, .26, 1) both; }
+.psp.ride { pointer-events: none; will-change: transform; }   /* attached: never a thing you can chase */
+.psp.rest { pointer-events: auto; left: 50%; top: auto; transform: translateX(-50%); transition: none;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+/* the signature toast lives at the same spot: it steps up while the card is docked */
+[data-psp="on"] .sig { bottom: calc(110px + env(safe-area-inset-bottom, 0px)); }
 .psp.out { opacity: 0; transition: opacity .45s ease; }
-@keyframes psp-in { from { opacity: 0; transform: translate3d(0, 0, 0) scale(.96); } }
+@keyframes psp-in { from { opacity: 0; } }
 /* Docked, when there is no cursor to follow or motion is unwelcome. */
 @media (prefers-reduced-motion: reduce), (hover: none), (pointer: coarse) {
   .psp, .psp.rest { top: auto; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px));
-    transform: translateX(-50%) !important; animation: none; pointer-events: auto; }
+    transform: translateX(-50%) !important; pointer-events: auto; }
 }
 .psp-x { position: absolute; top: 6px; right: 7px; width: 26px; height: 26px; border: 0; border-radius: 50%;
   background: none; color: var(--muted); font: 400 17px/1 var(--f-sans); cursor: pointer; }
 .psp-x:hover { color: var(--ink); background: color-mix(in srgb, var(--ink) 7%, transparent); }
 .psp-ask { font: 400 15px/1.55 var(--f-sans); color: var(--ink2); padding-right: 18px; }
-.psp-pick { position: relative; display: inline-block; border-bottom: 1px dashed var(--rule); }
+.psp-pick { position: relative; display: inline-block;
+  border-bottom: 1px dashed color-mix(in srgb, var(--b) 60%, transparent); }
 .psp-pick:hover, .psp-pick:focus-within { border-bottom-color: var(--b); }
 .psp-pick b { font: 500 15px/1.55 var(--f-sans); color: var(--b); white-space: nowrap; }
 .psp-pick b span { font-size: 10px; color: var(--muted); margin-left: 5px; }
@@ -497,8 +499,12 @@ a.lbl:hover { border-bottom-style: solid; }
 .psp-caret { display: inline-block; width: 2px; height: 1em; margin-left: 2px; vertical-align: -.12em;
   background: var(--b); }
 
+/* every version ships; CSS picks the one that matches, so the first paint is already right */
+.fy { display: none; }
+:root:not([data-reader]) .fy-look, :root[data-reader="look"] .fy-look,
+:root[data-reader="founder"] .fy-founder, :root[data-reader="engineer"] .fy-engineer,
+:root[data-reader="pm"] .fy-pm, :root[data-reader="recruiter"] .fy-recruiter { display: block; }
 .foryou { margin-top: 22px; padding-left: 14px; border-left: 2px solid color-mix(in srgb, var(--b) 45%, var(--rule)); max-width: 56ch; }
-.foryou-who { font: 500 11px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
 .foryou-txt { font: 400 16px/1.6 var(--f-sans); color: var(--ink2); }
 
 /* Phone (S30) */
