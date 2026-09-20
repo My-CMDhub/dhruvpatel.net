@@ -290,13 +290,8 @@ export function CallReplay() {
       </details>
 
       <p className="cr-note">
-        The caller is a synthesised voice reading a script. No stranger has ever called this number.
-        Everything Ovela says, and every time above, comes from the call itself: each answer time is
-        measured from the recording, so it includes the pause the speech recogniser takes before it
-        declares the caller&rsquo;s turn over. Measured inside the agent, from that point on, the same
-        replies are about half a second faster. Silence while the caller waited to speak has been cut;
-        no gap before an answer has been touched. Square brackets are mine, where the transcriber
-        misheard. Payments and email run in test mode, and the guest is test data.
+        The caller is a synthesised voice reading a script. Rest of all from VAD, barge-in, tool calls are handled by
+        the deployed underlying system.
       </p>
       <figcaption className="cap">
         <a className="lbl lbl-measured" href="#src-call">measured · answer times from the recording you can play</a>

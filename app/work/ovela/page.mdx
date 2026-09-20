@@ -7,7 +7,7 @@ export const s = scenes.find((x) => x.slug === 'ovela')
   title="Ovela"
   result="A voice receptionist on a real phone line. In the two calls below it answers in 0.9–1.2 s, tool turns included, and it's built around the parts of a call that usually go wrong."
   label={{ status: 'measured', note: '6 days, 12–51 turns each', href: '#src-readme' }}
-  meta="Personal project · no customers; every call is my own test call · Python, FastAPI, asyncio, Twilio, Deepgram Flux, gpt-4.1-nano, Cartesia, Appwrite, Next.js · 1,922 tests"
+  meta="Personal project · no customers; every call is my own test call · Python, FastAPI, asyncio, Twilio, Deepgram Flux, OpenAI, Cartesia, Appwrite, Next.js · 1,922 tests"
   links={[{ text: 'Source', href: repo.ovela }, { text: 'ovela.dev', href: 'https://ovela.dev' }]}
 />
 
@@ -35,7 +35,7 @@ The trace reader read one 100-row page and labelled it with the whole period I'd
 
 ### Re-measuring, even when the answer was convenient
 
-Models are benchmarked under the production prompt (~8,900 tokens, 12 tools), never on a bare "hello". Re-run in September, the two candidates were equal on speed, so the earlier finding that separated them no longer held. `gpt-4.1-nano` stays on cost, and any switch would now need a scored behaviour evaluation, not a latency number.
+Models are benchmarked under the production prompt (~8,900 tokens, 12 tools), never on a bare "hello". Re-run in September, the two candidates were equal on speed, so the earlier finding that separated them no longer held. LLM stays on cost, and any switch would now need a scored behaviour evaluation, not a latency number.
 
 ### What did the caller actually hear?
 
