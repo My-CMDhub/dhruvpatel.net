@@ -222,10 +222,6 @@ export function CallReplay() {
   return (
     <figure className="callr" aria-labelledby="cr-h">
       <p className="inv-eye" id="cr-h">Two real calls</p>
-      <p className="inv-ask">
-        The pill holds still: its bars are the recording&rsquo;s own loudness, green when Ovela speaks and
-        grey when the caller does. The words rise past it. Tap the pill, or drag the words.
-      </p>
 
       <div className="cr-tabs" role="group" aria-label="Which call">
         {TABS.map((x) => (

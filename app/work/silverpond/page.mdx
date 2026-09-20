@@ -72,20 +72,6 @@ Left to search the knowledge base however it liked, the agent wandered. Turn one
 
 <Ledger rows={s.ledger} />
 
-### Internal reasoning was leaking into answers
-
-I extracted the answer by a marker and kept intermediate tool turns silent, which also brought a cache-hit response to 7.6 s.
-
-<L s="measured" n="repeated runs" src="tests" />
-
-### A platform limit I didn't decide on alone
-
-The managed-agent API only returned text when a turn finished, so nothing streamed. I shipped a typewriter-style display as a stopgap, and put the real question to the team: is block-by-block latency acceptable, or do we simulate streaming?
-
-### The integration fought back, and I wrote it down
-
-Signing requests to the managed-agent gateway, and knowing which storage primitive accepts what, took empirical work. I put every one of those findings into the handover, so the next engineer doesn't rediscover them.
-
 ## What stands
 
 - An architecture review the senior team could decide from.
