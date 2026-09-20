@@ -256,7 +256,7 @@ export function CallReplay() {
                   <span className="cr-who">{x.who === 'agent' ? 'Ovela' : 'caller'} · {mmss(x.at)}</span>
                   <span className="cr-text">{x.text}</span>
                   {label(x)}
-                  {x.text.length > 80 && <span className="cr-more">tap to read it all</span>}
+                  {x.text.length > 80 && <span className="cr-more">read it all</span>}
                 </button>
               </article>
             ))}
