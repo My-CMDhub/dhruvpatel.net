@@ -151,7 +151,7 @@ export const scenes: Scene[] = [
       { tag: 'CHANGED', text: 'Qwen 2.5 7B at 8-bit: it followed the format, held the guardrails, and was faster for the same GPU memory. A smaller context left headroom.', value: 'Qwen 2.5 7B', sub: '8-bit, vLLM' },
       { tag: 'CHANGED', text: 'The guardrails framework could only check a finished answer. I streamed it instead and checked it a few sentences at a time on CPU, stopping the stream the moment a piece failed. No new GPU.', value: 'streamed', sub: 'and still guarded' },
       { tag: 'CHANGED', text: 'Context comes straight from the user’s own scan records and a small fixed knowledge base. No vector database to run or keep in sync.' },
-      { tag: 'HOLDS', text: 'Still live in the scanner. Recorded September 2026: one question answered, two misuse attempts blocked.', value: '2 / 2', sub: 'misuse blocked' },
+      { tag: 'HOLDS', text: 'Still live in the scanner: one question answered, two misuse attempts blocked.', value: '2 / 2', sub: 'misuse blocked' },
       { tag: 'NOT YET', text: 'The comparison and the guardrail tests weren’t recorded as numbers I can publish.' },
     ],
   },
