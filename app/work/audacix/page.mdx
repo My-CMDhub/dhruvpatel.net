@@ -44,7 +44,7 @@ So that speed was measured rather than felt, the assistant logs time to first to
 
 The model is treated as untrusted. A jailbreak check runs on every question before anything is generated, and the answer is checked for jailbreaks and for staying on web security before the user sees it.
 
-The catch: the open-source guardrails framework we used checked a finished answer, not a stream. Waiting for the whole answer meant a blank screen, and on the CPU we had, the topic check took tens of seconds per answer. A GPU for the checks was the obvious fix, and it wasn't coming soon.
+The catch: the open-source guardrails framework we used checked a finished answer, not a stream. Waiting for the whole answer meant a blank screen, and on the CPU we had, the topic check took tens of seconds per answer. A second GPU for the checks was the obvious fix, and I didn't have one.
 
 So I streamed the answer and checked it in pieces. Text is held back until a few sentences are complete, which gives the small classifier models enough context to judge. Each piece is checked in the background while the next one streams, and the stream stops the moment a piece fails. People see an answer start almost at once. The trade-off, chosen on purpose: a violation can surface a sentence or two in, rather than never being shown at all.
 
@@ -58,7 +58,7 @@ The assistant answers questions about *this* user's scan. That data was already 
 
 ### Debugging past my own component
 
-Users on the scanner's no-SSL path waited more than five minutes for an SSL/TLS result that never arrived. The scan wasn't slow; it had never started. That path marked the request complete without ever queuing an SSL scan. I made it queue a linked background SSL scan and put its result on the report when it finishes.
+Users waited more than five minutes for an SSL/TLS result that never arrived. The scan wasn't slow; it had never started: one path through the scanner marked the request complete without ever queuing the scan. I made it queue a linked background SSL scan and put its result on the report when it finishes.
 
 ## What stands
 

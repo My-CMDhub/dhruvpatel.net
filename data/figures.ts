@@ -115,12 +115,12 @@ export const scenes: Scene[] = [
     name: 'Silverpond',
     kind: 'an agent architecture for a multi-tenant platform · internship',
     what: 'What a new customer hands over',
-    from: 'an AWS key we store',
-    to: 'nothing we keep',
+    from: 'a stored AWS key',
+    to: 'nothing to store',
     ruler: {
       scale: 'handover',
-      not: 'A permanent AWS access key, stored by us',
-      is: ['A role in their own account, assumed for an hour at a time', 'Two values and one choice, typed once', 'Revocable by them, at any time'],
+      not: 'A permanent AWS access key, kept on the platform',
+      is: ['A role in their own account, assumed for an hour at a time', 'Two values typed in, one option chosen', 'Revocable by them, at any time'],
     },
     label: { status: 'first-hand', note: 'the design I proposed, prototyped and handed over', href: '/work/silverpond/#src-review' },
     notYet: 'a settled answer for how the agent picks which case you mean',
@@ -128,7 +128,7 @@ export const scenes: Scene[] = [
       { tag: 'SAW', text: 'The brief was one paragraph. It didn’t say how to split the work across three systems, or how to make it safe for the second customer, let alone the fiftieth.' },
       { tag: 'SAW', text: 'The obvious path was to ask each customer for an AWS access key and store it.' },
       { tag: 'CHANGED', text: 'The platform assumes a role inside the customer’s own account instead, tied to an identifier bound to that customer, so one tenant’s trust can’t be replayed against another’s. The credentials last an hour and the customer can revoke them at any time.', value: '0 keys', sub: 'stored' },
-      { tag: 'CHANGED', text: 'Setup became a stack the customer launches themselves, then two values and one choice. Everything after it is automated.', value: '~2 min', sub: 'of the customer’s own clicking · projected' },
+      { tag: 'CHANGED', text: 'Setup became a stack the customer launches themselves, then two values typed in and one option chosen. Everything after it is automated.', value: '~2 min', sub: 'of the customer’s own clicking · projected' },
       { tag: 'CHANGED', text: 'The design was proven in a FastAPI prototype and reviewed before anyone changed the production app.' },
       { tag: 'HOLDS', text: 'The agent’s first-turn search, once retrieval read an index before it read files.', value: '23.4 s → 3.9 s', sub: 'repeated runs' },
       { tag: 'NOT YET', text: 'How the agent should decide which case you’re asking about — an explicit ID, the most recent one, or inferred — was never settled while I was there.' },
@@ -187,5 +187,5 @@ export const journey = {
     { at: '2026-05', label: 'Silverpond', side: 'end' },
   ] as { at: string; label: string; side: 'start' | 'end' }[],
   ahead: 6, // months of dashed line past now
-  says: 'Studied at Melbourne Institute of Technology from November 2022 to June 2025, winning its IMPACT showcase in May 2025. Internships at Audacix from July 2025 and Silverpond from May 2026. Building Ovela and Agent-OS now.',
+  says: 'Studied at Melbourne Institute of Technology from November 2022 to June 2025, winning its IMPACT showcase in May 2025. Internships at Audacix from July to October 2025 and Silverpond from May to August 2026. Building Ovela and Agent-OS now.',
 }

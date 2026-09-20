@@ -23,9 +23,9 @@ const NODES: Record<NodeId, { name: string; sub: string; owns: string[]; never?:
   gw: { name: 'Highlighter', sub: 'the gateway · Rails', owns: ['Who is asking: account and site', 'The case and its data', 'Fetching credentials at request time', 'Routing to this customer’s agent environment', 'Starting the agent and storing its answer'],
     never: ['Prompt text', 'The diagnostic workflow', 'Output format rules', 'Domain knowledge', 'Hard-coded site layout'] },
   br: { name: 'Managed agent', sub: 'the brain · Claude', owns: ['System prompt: rules, tone, turn budget', 'Memory store: identity, domain knowledge, lessons, fetched on demand', 'Environment: the queue to this customer’s worker', 'Vault: tokens referenced, never shown in prompts or logs'] },
-  hd: { name: 'Worker', sub: 'the hands · ECS Fargate', owns: ['A worker that polls for tool calls', 'SKILL.md: the diagnostic workflow, baked into the image', 'hl CLI to Highlighter’s GraphQL API', 'AVRO → JSON, then DuckDB, jq, rg'],
-    never: ['Customer identity', 'API credentials: never baked into the image', 'Customer-specific thresholds', 'The agent’s personality'] },
-  db: { name: 'Highlighter data', sub: 'GraphQL API', owns: ['Case data, telemetry and prediction files, read by the worker through the hl CLI.'] },
+  hd: { name: 'Worker', sub: 'the hands · ECS Fargate', owns: ['A worker that polls for tool calls', 'The diagnostic workflow, baked into the image rather than sent in a prompt', 'A CLI that reads case data through the platform’s API'],
+    never: ['Customer identity', 'API credentials: never baked into the image', 'The agent’s personality'] },
+  db: { name: 'Highlighter data', sub: 'GraphQL API', owns: ['Case data, read by the worker through the platform’s API.'] },
 }
 type Step = { title: string; text: string; path: NodeId[]; focus: NodeId[]; metric?: string; cust?: boolean }
 const TABS: Record<'q' | 'c', { label: string; steps: Step[] }> = {
@@ -34,18 +34,18 @@ const TABS: Record<'q' | 'c', { label: string; steps: Step[] }> = {
     { title: 'Highlighter works out who and what', text: 'It resolves the account, the case and the site, and routes to this customer’s own agent environment. It holds no prompt text and no workflow.', path: ['gw'], focus: ['gw'] },
     { title: 'A session opens, with only this case attached', text: 'The rules and memory already live with the agent; the message carries this case and this question, nothing else.', path: ['gw', 'br'], focus: ['gw', 'br'] },
     { title: 'Claude plans, and scope is settled before any tool runs', text: 'The query is classified into tiers first, so one that should never run is refused before the model acts. Retrieval is index-first: turn one reads only the index, turn two at most two files.', path: ['br'], focus: ['br'], metric: 'first-turn search 23.4 s → 3.9 s · measured, repeated runs' },
-    { title: 'The worker does the work inside the customer’s account', text: 'It polls for tool calls with its own task role, reads the case through the hl CLI, queries it with DuckDB and returns the output. Credentials are never in the image.', path: ['br', 'hd', 'db', 'hd', 'br'], focus: ['br', 'hd', 'db'], cust: true },
+    { title: 'The worker does the work inside the customer’s account', text: 'It polls for tool calls with its own task role, reads the case through that CLI, queries it and returns the output. Credentials are never in the image.', path: ['br', 'hd', 'db', 'hd', 'br'], focus: ['br', 'hd', 'db'], cust: true },
     { title: 'The answer comes back as JSON', text: 'Highlighter stores it on the case and the app renders it. The API returned text only at the end of a turn, so the typewriter display was a stopgap, and whether to simulate streaming was a question I put to the team.', path: ['br', 'gw', 'op'], focus: ['br', 'gw', 'op'] },
   ] },
   c: { label: 'A new customer', steps: [
     { title: 'One CloudFormation stack, in their own AWS account', text: 'It creates a role that trusts Highlighter only when the ExternalId is that customer’s account ID, plus the network and the Fargate cluster for the worker.', path: ['hd'], focus: ['hd'], cust: true },
-    { title: 'Two values and one choice', text: 'The role’s ARN and the workspace ID, typed in, plus one selection from the list already on their configuration page. Nothing else is asked for, and no key is ever sent.', path: ['op', 'gw'], focus: ['op', 'gw'] },
+    { title: 'Two values typed, one option chosen', text: 'The role’s ARN and the workspace ID, typed in, plus one option picked from the list already on their configuration page. Nothing else is asked for, and no key is ever sent.', path: ['op', 'gw'], focus: ['op', 'gw'] },
     { title: 'Highlighter assumes the role through STS', text: 'The ExternalId has to match the customer’s account ID, the defence against a confused-deputy attack. The credentials it gets last one hour.', path: ['gw', 'hd'], focus: ['gw', 'hd'], cust: true },
     { title: 'A job provisions the rest, in a second phase', text: 'The environment can’t exist while the stack is running — it can only be created once the delegated role does. So the backend creates the agent, its environment and its memory store afterwards, then points the customer’s worker at the new environment.', path: ['gw', 'br', 'hd'], focus: ['gw', 'br', 'hd'] },
     { title: 'Nothing to store', text: 'The customer can revoke the role at any time. Tenants are isolated at six layers: database scope, container cluster, agent environment, memory store, vault and network.', path: ['gw'], focus: ['gw'], metric: '0 AWS keys stored · about 2 minutes of the customer’s own clicking, projected from the steps rather than timed end to end' },
   ] },
 }
-const OUT_OF_SCOPE: Step = { title: 'Out of scope: refused before any tool runs', text: 'Asked to reach into a staging database, the agent classifies the query first and refuses it. No tool call is made.', path: ['br', 'gw'], focus: ['br', 'gw'], metric: 'refused in 3.3 s · 0 tool calls · measured, repeated runs' }
+const OUT_OF_SCOPE: Step = { title: 'Out of scope: refused before any tool runs', text: 'Asked to reach for infrastructure it has no business touching, the agent classifies the query first and refuses it. No tool call is made.', path: ['br', 'gw'], focus: ['br', 'gw'], metric: 'refused in 3.3 s · 0 tool calls · measured, repeated runs' }
 
 const center = (b: Box) => [b.x + b.w / 2, b.y + b.h / 2] as const
 
@@ -56,7 +56,7 @@ function Diagram({ layout, step, hosted, inspect, onInspect, refused, calm }: {
   const pts = step.path.map((id) => center(L.n[id]))
   const d = pts.length > 1 ? 'M' + pts.map((p) => p.join(' ')).join(' L') : ''
   const EDGES: [NodeId, NodeId, string, boolean][] = [
-    ['op', 'gw', '', false], ['gw', 'br', 'session · prompt', false], ['br', 'hd', 'tool calls · polled', true], ['hd', 'db', 'hl CLI → GraphQL', false],
+    ['op', 'gw', '', false], ['gw', 'br', 'session · prompt', false], ['br', 'hd', 'tool calls · polled', true], ['hd', 'db', 'reads case data', false],
   ]
   const at = (a: NodeId, b: NodeId) => {
     const [x1, y1] = center(L.n[a]), [x2, y2] = center(L.n[b])
@@ -161,7 +161,7 @@ export function SilverpondFlow() {
         <button type="button" aria-pressed={hosted} onClick={() => setHosted(true)}>Anthropic’s sandbox</button>
         <p>{hosted
           ? 'No standing worker per customer, so it costs less to run. Execution happens in Anthropic’s sandbox, outside the customer’s account.'
-          : 'Execution and data stay inside the customer’s own account. The review made this the primary path for enterprise customers.'}</p>
+          : 'Execution and data stay inside the customer’s own account. That is usually what an enterprise buyer cares about most.'}</p>
       </div>
 
       {inspect && (

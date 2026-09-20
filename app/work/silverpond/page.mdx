@@ -19,7 +19,7 @@ The brief was one paragraph: operators should be able to chat with an agent abou
 
 ### I didn't want to hold anyone's keys
 
-The simple path was to ask each customer for AWS access keys. Instead, Silverpond assumes a role in the customer's account through STS, with the `ExternalId` bound to that customer's account ID (the defence against a confused-deputy attack). Credentials last one hour, and the customer can revoke access at any time. Onboarding is a one-click CloudFormation stack, then two values and one choice from a list already on their configuration page. Tenants are isolated at six layers: database scope, container cluster, agent environment, memory store, vault and network.
+The simple path was to ask each customer for AWS access keys. Instead, Silverpond assumes a role in the customer's account through STS, with the `ExternalId` bound to that customer's account ID (the defence against a confused-deputy attack). Credentials last one hour, and the customer can revoke access at any time. Onboarding is a one-click CloudFormation stack, then two values typed in and one option chosen from a list already on their configuration page. Tenants are isolated at six layers: database scope, container cluster, agent environment, memory store, vault and network.
 
 ### Four things I assumed, and what the system actually did
 
@@ -50,7 +50,7 @@ pulled out of conversation lifecycle entirely.
 
 ### Two products were being treated as one
 
-The direction was Claude's managed agents on AWS, but the feature requests kept describing what Amazon Bedrock provides. I compared the two side by side, showed where the requirements were mixing them, and we settled on managed agents. Then I built and tried both ways of running them: a self-hosted worker in the customer's AWS account, and Anthropic's hosted sandbox. They trade off differently: the hosted sandbox needs no standing worker per customer, so it's cheaper to run, while self-hosting keeps execution and data inside the customer's own account. The review deck presents both, with self-hosted as the primary path for enterprise customers.
+Claude's managed agents and Amazon Bedrock solve overlapping problems and are easy to conflate, so I compared them side by side, set out where each one wins, and recommended managed agents. Then I built and tried both ways of running them: a self-hosted worker in the customer's AWS account, and Anthropic's hosted sandbox. They trade off differently. A hosted sandbox needs no standing worker per customer, so it costs less to run; self-hosting keeps execution and data inside the customer's own account, which is the thing an enterprise buyer usually cares about most.
 
 ### Prototype before production
 
@@ -58,19 +58,25 @@ I built the workflow in FastAPI first, a stack I could move fast in, so the desi
 
 ### Scope was enforced in code, not asked for in the prompt
 
-Queries that should never run, such as reaching into the staging database, are classified into tiers before the model acts, and refused in 3.3 s with zero tool calls.
+Queries that should never run, such as one reaching for infrastructure the agent has no business touching, are classified into tiers before the model acts, and refused in 3.3 s with zero tool calls.
 
 <L s="measured" n="repeated runs" src="tests" />
 
 ### The agent was slow because it was free to wander
 
-<Ledger rows={s.ledger} />
+Left to search the knowledge base however it liked, the agent wandered. Turn one reads only the index; turn two reads at most two files, in parallel.
 
 <L s="measured" n="repeated runs · named stress and latency tests" src="tests" />
+
+### The whole arc, in order
+
+<Ledger rows={s.ledger} />
 
 ### Internal reasoning was leaking into answers
 
 I extracted the answer by a marker and kept intermediate tool turns silent, which also brought a cache-hit response to 7.6 s.
+
+<L s="measured" n="repeated runs" src="tests" />
 
 ### A platform limit I didn't decide on alone
 
@@ -83,9 +89,9 @@ Signing requests to the managed-agent gateway, and knowing which storage primiti
 ## What stands
 
 - An architecture review the senior team could decide from.
-- A six-step provisioning state machine.
-- My Rails integration (schema, STS role assumption, the managed-agent API client, the provisioning job and the onboarding UI), passing 8/8 RSpec with 0 RuboCop offences.
-- Onboarding reduced to two values and one choice, with zero stored AWS credentials.
+- A six-step provisioning state machine, running behind the five steps the customer sees.
+- My Rails integration (schema, STS role assumption, the managed-agent API client, the provisioning job and the onboarding UI), passing 8/8 RSpec with 0 RuboCop offences (`#src-review`).
+- Onboarding reduced to two values typed in and one option chosen, with zero stored AWS credentials.
 
 ## What it still didn't do at handover
 
@@ -95,7 +101,7 @@ Signing requests to the managed-agent gateway, and knowing which storage primiti
   it needed an explicit case ID before it would answer, which is fine for a link into a case and wrong
   for someone just asking a question. Explicit ID, most recent case, or inferred from the question —
   it was still open when my placement ended.
-- **A cold start still took ~43 s.**
+- **A cold start still took about 43 s**, down from 59.2 s but nowhere near fast.
 
 ## Sources
 
