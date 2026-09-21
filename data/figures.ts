@@ -185,9 +185,8 @@ export const band = {
 export const also: { name: string; when: string; text: string; href?: string }[] = [
   { name: 'EdgenAI', when: '2025–26 · internship', text: 'LangGraph workflows and output guardrails for an LLM rubric generator.' },
   { name: 'Royal Humane Society', when: '2025 · internship', text: 'OCR digitisation of historical records: Flask, PostgreSQL.' },
-  { name: 'Task manager with an assistant', when: '2025 · project', text: 'A Django task manager where an assistant files the task for you. Supabase auth, Docker.', href: 'https://github.com/My-CMDhub/Django-Task-Manager' },
-  { name: 'Grocery agent', when: '2025–26 · project', text: 'Works out when you next need the shops and messages you on WhatsApp. Flask, receipt OCR.', href: 'https://github.com/My-CMDhub/Grocery-Prediction-AI-Agent' },
-  { name: 'Courier quote calculator', when: '2025 · project', text: 'No AI in it at all: pricing rules, an admin price sheet, and a deployed quote form. Express.', href: 'https://github.com/My-CMDhub/Estimate-Courier-Quote-generator' },
+  { name: 'Grocery agent', when: '2025–26 · project', text: 'Works out when you next need the shops and messages you on WhatsApp. The prediction is arithmetic on your own purchase gaps; the model only writes the message.', href: 'https://github.com/My-CMDhub/Grocery-Prediction-AI-Agent' },
+  { name: 'Courier quote calculator', when: '2025 · project', text: 'No model anywhere in it: the agency’s real pricing brackets, an admin price sheet, and a deployed quote form. Express.', href: 'https://github.com/My-CMDhub/Estimate-Courier-Quote-generator' },
 ]
 
 // The home hero's journey line. Dates are month-precise; "now" is the build date, so each deploy moves it.
