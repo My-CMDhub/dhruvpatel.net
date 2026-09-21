@@ -65,9 +65,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main id="main">{children}</main>
           <Perspective />
           <footer className="contact">
+            <p className="invite">{site.invite}</p>
+            <div className="links">
             <a href={`mailto:${site.email}`}>{site.email}</a>
             <a href={site.github} {...ext(site.github)}>GitHub ↗</a>
             <a href={site.linkedin} {...ext(site.linkedin)}>LinkedIn ↗</a>
+            </div>
           </footer>
         </div>
       </body>

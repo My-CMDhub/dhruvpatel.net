@@ -28,6 +28,7 @@ export function Scene({ s }: { s: SceneT }) {
         <h2 id={`h-${s.slug}`} style={{ ['viewTransitionName' as string]: `name-${s.slug}` }}><a href={`/work/${s.slug}/`}>{s.name}</a></h2>
         <span className="kind">{s.kind}</span>
       </div>
+      {s.stack && <ul className="chips">{s.stack.map((t) => <li key={t}>{t}</li>)}</ul>}
       <p className="what">{s.what}</p>
       <p className="big">
         <s>{s.from}</s> <span aria-label="to">→</span> <i>{s.to}</i>

@@ -11,11 +11,12 @@ export default function Home() {
         <Journey />
         <p className="place">{site.place}</p>
         <p className="pos">{site.positioning}</p>
+        <p className="me">{site.me}</p>
       </section>
       <div id="work">
         {(['project', 'internship'] as const).map((g) => (
           <div key={g} className="grp">
-            <p className="grp-h">{g === 'project' ? 'Projects' : 'Internships'}</p>
+            <h2 className="grp-h">{g === 'project' ? 'Some of what I’ve built' : 'Where I’ve worked'}</h2>
             {scenes.filter((s) => s.group === g).map((s) => <Scene key={s.slug} s={s} />)}
           </div>
         ))}

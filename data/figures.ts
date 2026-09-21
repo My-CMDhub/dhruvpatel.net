@@ -15,6 +15,11 @@ export const site = {
   place: 'Software engineer · Melbourne',
   positioning:
     'I build the system around the model (the business constraint, the real behaviour, the person using it, the running cost) and measure them before I believe them.',
+  // In his own words. Kept to two sentences: the second one is the trade-off, and it is the half
+  // that makes the first half believable.
+  me: 'I like finding the part nobody expected to fail. I think in systems, and the trade-off is that I sometimes see more problems than I need to solve.',
+  invite:
+    'If any of this is close to what you’re building, I’d like to hear about it — a question, a role, or a place where you think I’m wrong. I reply to all of it.',
   email: 'dppatel20004@gmail.com',
   github: 'https://github.com/My-CMDhub',
   linkedin: 'https://www.linkedin.com/in/dhruvpatel-profile/',
@@ -40,6 +45,7 @@ export type Scene = {
   group: 'project' | 'internship'
   name: string
   kind: string
+  stack?: string[]   // at most six, and only what the work actually used
   what: string
   from: string
   to: string
@@ -55,6 +61,7 @@ export const scenes: Scene[] = [
     group: 'project',
     name: 'Ovela',
     kind: 'a voice receptionist on a real phone line',
+    stack: ['Python', 'FastAPI', 'asyncio', 'Twilio', 'Deepgram', 'Cartesia'],
     what: 'The first reply of a call',
     from: '3.7 s',
     to: '0.9 s',
@@ -74,6 +81,7 @@ export const scenes: Scene[] = [
     group: 'project',
     name: 'Agent-OS',
     kind: 'a harness built for an AI model to operate a Mac',
+    stack: ['Swift', 'SwiftUI', 'macOS Accessibility', 'Keychain', 'Swift Testing'],
     what: 'A request queued behind a 3-second action',
     from: '2,864 ms',
     to: '5 ms',
@@ -94,6 +102,7 @@ export const scenes: Scene[] = [
     group: 'project',
     name: 'Capstone',
     kind: 'an Ethereum payment gateway for a real client · overall winner, IMPACT 2025 capstone showcase',
+    stack: ['Node.js', 'TypeScript', 'React', 'Web3.js', 'Ethereum', 'Infura'],
     what: 'How far a payment may be from the amount asked, on a 0.05 ETH order',
     from: '±0.5%',
     to: `±${+mayPct.toFixed(4)}%`,
@@ -114,6 +123,7 @@ export const scenes: Scene[] = [
     group: 'internship',
     name: 'Silverpond',
     kind: 'an agent architecture for a multi-tenant platform · internship',
+    stack: ['Python', 'FastAPI', 'AWS STS', 'ECS Fargate', 'CloudFormation', 'LLM agents'],
     what: 'What a new customer hands over',
     from: 'a stored AWS key',
     to: 'nothing to store',
@@ -139,6 +149,7 @@ export const scenes: Scene[] = [
     group: 'internship',
     name: 'Audacix',
     kind: 'the assistant inside a live security scanner · internship',
+    stack: ['Django', 'PostgreSQL', 'vLLM', 'Qwen 2.5', 'Guardrails AI', 'AWS'],
     what: 'The model behind the scanner’s assistant',
     from: 'Llama\u00a03.1',
     to: 'Qwen\u00a02.5',
@@ -174,6 +185,9 @@ export const band = {
 export const also: { name: string; when: string; text: string; href?: string }[] = [
   { name: 'EdgenAI', when: '2025–26 · internship', text: 'LangGraph workflows and output guardrails for an LLM rubric generator.' },
   { name: 'Royal Humane Society', when: '2025 · internship', text: 'OCR digitisation of historical records: Flask, PostgreSQL.' },
+  { name: 'Task manager with an assistant', when: '2025 · project', text: 'A Django task manager where an assistant files the task for you. Supabase auth, Docker.', href: 'https://github.com/My-CMDhub/Django-Task-Manager' },
+  { name: 'Grocery agent', when: '2025–26 · project', text: 'Works out when you next need the shops and messages you on WhatsApp. Flask, receipt OCR.', href: 'https://github.com/My-CMDhub/Grocery-Prediction-AI-Agent' },
+  { name: 'Courier quote calculator', when: '2025 · project', text: 'No AI in it at all: pricing rules, an admin price sheet, and a deployed quote form. Express.', href: 'https://github.com/My-CMDhub/Estimate-Courier-Quote-generator' },
 ]
 
 // The home hero's journey line. Dates are month-precise; "now" is the build date, so each deploy moves it.
