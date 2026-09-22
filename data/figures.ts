@@ -61,7 +61,7 @@ export const scenes: Scene[] = [
     group: 'project',
     name: 'Ovela',
     kind: 'a voice receptionist on a real phone line',
-    stack: ['Python', 'FastAPI', 'asyncio', 'Twilio', 'Deepgram', 'Cartesia'],
+    stack: ['Python', 'FastAPI', 'asyncio', 'Twilio', 'STT', 'TTS'],
     what: 'The first reply of a call',
     from: '3.7 s',
     to: '0.9 s',
