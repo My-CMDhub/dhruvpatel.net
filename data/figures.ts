@@ -12,7 +12,7 @@ export type Label = { status: Status; note: string; href?: string }
 
 export const site = {
   name: 'Dhruv Patel',
-  place: 'Software engineer · Melbourne',
+  place: 'Software engineer · near Melbourne',
   positioning:
     'I build the system around the model (the business constraint, the real behaviour, the person using it, the running cost) and measure them before I believe them.',
   // In his own words. Kept to two sentences: the second one is the trade-off, and it is the half
