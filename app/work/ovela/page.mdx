@@ -5,13 +5,21 @@ export const s = scenes.find((x) => x.slug === 'ovela')
 
 <CaseHead
   title="Ovela"
-  result="A voice receptionist on a real phone line. In the two calls below it answers in 0.9–1.2 s, tool turns included, and it's built around the parts of a call that usually go wrong."
-  label={{ status: 'measured', note: '6 days, 12–51 turns each', href: '#src-readme' }}
-  meta="Personal project · no customers; every call is my own test call · Python, FastAPI, asyncio, Twilio, SST, LLM, TTS, Appwrite, Next.js · 1,922 tests"
+  result="A voice receptionist on a real phone line. In the two calls below it starts speaking a median 1.0 s after the caller's last word — 0.9–1.7 s across seven replies, tool turns included — and it's built around the parts of a call that usually go wrong."
+  label={{ status: 'measured', note: 'from the unedited recordings · 7 replies across two calls', href: '#src-readme' }}
+  meta="Personal project · no customers; every call is my own test call · Python, FastAPI, asyncio, Twilio, STT, LLM, TTS, Appwrite, Next.js · 1,949 tests"
   links={[{ text: 'Source', href: repo.ovela }, { text: 'ovela.dev', href: 'https://ovela.dev' }]}
 />
 
 <CallReplay />
+
+## Two clocks
+
+Every answer time on this page says which clock it is on.
+
+The **caller's clock** starts at the caller's actual last word, measured from the recording. The **pipeline clock** starts later, when the speech model decides the caller has finished. On the same calls the caller's clock runs about 0.5–1.0 s longer, and most of that gap is not my code: it is end-of-turn detection, and the phone audio crossing from Australia to a US server and back.
+
+So: a model that answered instantly would still leave a caller here waiting about 0.8 s. That is the floor this architecture has, and it is why the section below is about where a benchmark is held rather than which model wins.
 
 ## How it was earned
 
@@ -33,15 +41,33 @@ The trace reader read one 100-row page and labelled it with the whole period I'd
 
 <L s="withdrawn" n="replaced by the per-turn-type figures" src="readme" /> · <L s="measured" n="15 → 21 lookups" src="readme" />
 
-### Re-measuring, even when the answer was convenient
+### Same test, opposite winner
 
-Models are benchmarked under the production prompt (~8,900 tokens, 12 tools), never on a bare "hello". Re-run in September, the two candidates were equal on speed, so the earlier finding that separated them no longer held. LLM stays on cost, and any switch would now need a scored behaviour evaluation, not a latency number.
+OpenAI is retiring the model Ovela ran on, so I benchmarked the replacement the careful way: the real 9,000-token prompt, all twelve tools, whole conversations with lookups and interruptions. From my laptop in Melbourne the new model was clearly faster — 1,234 ms to first token against 1,514 ms. I nearly shipped it on that.
+
+The calls don't run in Melbourne. Re-run on the US server that actually answers the phone, the order reversed: 636 ms against 474 ms. The server's figure for the old model matched what live calls had already recorded, so that is the one I trust. The replacement's fast tier closed the gap to 535 ms, and that is what runs now.
+
+I still can't fully explain why the order reversed. What I can say is that my desk was adding half a second to a second of distance to every request, and it wasn't landing equally on both models — the noise was bigger than the difference I was trying to measure.
+
+<L s="measured" n="~400 requests per model on the laptop, ~250 on the server · median" src="readme" />
+
+*A benchmark answers a question about the place it ran. Mine had been held at my desk.*
+
+### The goodbye nobody said
+
+Swapping the model changed behaviour the code had silently depended on. The new one ended calls by calling `hang_up_call` without saying anything first — it put the goodbye inside the tool's arguments, where nothing spoke it. The turn then sat for up to 15 s waiting on audio nobody had asked for, and when the caller said "Hello?" into that silence, it cancelled the hang-up mid-request. Three goodbyes, and the caller hung up first.
+
+Now the code speaks the tool's own farewell when the model didn't, a hang-up can't be cancelled by whatever the caller says next, and a turn with no words in it ends at once.
+
+<L s="measured" n="one live call before, one after · 5 regression tests, each failing without the fix" src="readme" />
 
 ### What did the caller actually hear?
 
-Text is generated faster than it's spoken. When a caller cuts in, the model has "said" words the caller never heard. Ovela keeps only the part that played, estimated from the audio Twilio confirms it delivered. And "mhmm" isn't an interruption.
+Text is generated faster than it's spoken. When a caller cuts in, the model has "said" words the caller never heard. Ovela keeps only the part that played. And "mhmm" isn't an interruption.
 
-<L s="measured" n="interruptions caught up to 6.5 s into an answer · 6 interruptions" src="readme" />
+The count this section used to quote was wrong, and I found out the same way I find out most things. A two-channel recording of one call showed the caller spoke over the agent **once**; the log had counted seven. The other six fired after the agent had already finished — the caller answering its question, inside a two-second margin left over from an older design. The margin is now 0.8 s, sized to the 0.24–0.87 s audio delay I measured, and the fix is written and tested but not yet confirmed on a live call.
+
+<L s="provisional" n="fix committed, awaiting a live call before the count is quoted again" src="readme" />
 
 ### The slowest reply was the first one
 
@@ -55,10 +81,10 @@ When the model reached for a tool, the caller heard nothing for 2.3–4.3 s. Now
 
 ## What stands
 
-- No-tool replies in 0.55–0.71 s.
+- No-tool replies start 0.6–0.8 s after the speech model calls the turn over.
 - Identity: 24 of 28 real guests found from misheard details, 0 of 8 non-guests invented, 0 wrong guest.
 - Four actions gated in code.
-- 1,922 tests.
+- 1,949 tests.
 
 ## What it still doesn't do
 

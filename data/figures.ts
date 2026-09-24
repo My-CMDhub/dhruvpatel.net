@@ -66,7 +66,7 @@ export const scenes: Scene[] = [
     from: '3.7 s',
     to: '0.9 s',
     ruler: { scale: 'linear', max: 4, unit: 's', from: 3.7, to: 0.9 },
-    label: { status: 'measured', note: 'one call before, one after', href: '/work/ovela/#src-readme' },
+    label: { status: 'measured', note: 'from the moment the speech model calls the turn over · one call before, one after', href: '/work/ovela/#src-readme' },
     notYet: (live as Record<string, string>).ovela ?? 'as fast when a tool runs · 1.1–1.7 s',
     ledger: [
       { tag: 'SAW', text: 'The first reply of each call was the slowest, well over a second behind the rest.', value: '3.7 s', sub: 'first reply' },
@@ -184,7 +184,7 @@ export const band = {
 
 export const also: { name: string; when: string; text: string; href?: string }[] = [
   { name: 'EdgenAI', when: '2025–26 · internship', text: 'LangGraph workflows and output guardrails for an LLM rubric generator.' },
-  { name: 'Royal Humane Society', when: '2025 · internship', text: 'OCR digitisation of historical records: Flask, PostgreSQL.' },
+  { name: 'Royal Humane Society', when: '2025 · internship', text: 'Digitising 150 years of handwritten award records. Flask, a paid OCR service, a search page with CSV export — and a local-LLM extractor I handed over labelled experimental because it invented values.' },
   { name: 'Grocery agent', when: '2025–26 · project', text: 'Works out when you next need the shops and messages you on WhatsApp. The prediction is arithmetic on your own purchase gaps; the model only writes the message.', href: 'https://github.com/My-CMDhub/Grocery-Prediction-AI-Agent' },
   { name: 'Courier quote calculator', when: '2025 · project', text: 'No model anywhere in it: the agency’s real pricing brackets, an admin price sheet, and a deployed quote form. Express.', href: 'https://github.com/My-CMDhub/Estimate-Courier-Quote-generator' },
   { name: 'Solar Saver', when: '2026 · front end', text: 'A landing page paced as one scroll rather than six sections that each animate. Lenis, GSAP and Framer Motion, each doing the one thing it is good at. The two WebGL backgrounds are React Bits’, and the README says which.', href: 'https://solvac.vercel.app' },
