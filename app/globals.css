@@ -37,31 +37,94 @@ a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 3px; 
 .wrap { max-width: 1080px; margin: 0 auto; padding: 44px 56px 64px; }
 
 /* Header */
-.top { display: flex; justify-content: space-between; align-items: baseline; gap: 20px; font: 500 14px var(--f-sans); }
+.top { position: sticky; top: 12px; z-index: 40; width: max-content; max-width: 100%; margin: 0 auto;
+  display: flex; align-items: center; gap: 22px; font: 500 14px var(--f-sans);
+  padding: 9px 18px; border-radius: 999px; border: 1px solid var(--rule);
+  background: color-mix(in srgb, var(--bg) 84%, transparent); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  box-shadow: 0 8px 28px -16px color-mix(in srgb, var(--ink) 55%, transparent); }
+/* Where the browser can tie animation to scroll, the bar starts flat, as it always was, and becomes
+   the floating pill over the first 120px. Elsewhere it is simply always the pill. */
+@supports (animation-timeline: scroll()) {
+  .top { animation: top-float linear both; animation-timeline: scroll(root); animation-range: 0 120px; }
+  @keyframes top-float { from { border-color: transparent; background: transparent; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; } }
+}
 .top .me { font-weight: 600; text-decoration: none; }
-.top nav a { margin-left: 26px; color: var(--muted); text-decoration: none; }
+.top nav a { margin-left: 22px; color: var(--muted); text-decoration: none; }
 .top nav a:hover { color: var(--ink); }
 
 /* Hero */
-.hero { min-height: 560px; display: flex; flex-direction: column; justify-content: center; }
+.hero { min-height: calc(100svh - 110px); display: flex; flex-direction: column; justify-content: center; padding-bottom: 40px; }
 h1 { font: 700 clamp(64px, 14vw, 120px)/.9 var(--f-cond); letter-spacing: -.04em; }
-.hero h1 { width: fit-content; }
-.place { font: 500 13px var(--f-mono); color: var(--muted); letter-spacing: .02em; margin-top: 22px; }
-.pos { font: 400 clamp(19px, 2.4vw, 24px)/1.45 var(--f-serif); max-width: 34ch; margin-top: 18px; color: var(--ink2); }
-.me { font: 400 16.5px/1.55 var(--f-serif); max-width: 40ch; margin-top: 20px; color: var(--muted); }
+.place { font: 500 13px var(--f-mono); color: var(--muted); letter-spacing: .02em; }
+/* The hero sentence (the name lives in the nav now). It stops at "model"; the word is the button. */
+.hero .intro { font: 700 clamp(36px, 5.4vw, 60px)/1.04 var(--f-cond); letter-spacing: -.025em; max-width: 19ch; margin-top: 16px; }
+.intro-w { font: inherit; letter-spacing: inherit; color: var(--a); background: none; border: 0; padding: 0; cursor: pointer;
+  text-decoration: underline dotted 2px; text-underline-offset: .14em; text-decoration-color: color-mix(in srgb, var(--a) 55%, transparent); }
+.intro-w:hover { text-decoration-style: solid; text-decoration-color: var(--a); }
+.intro.is-open .intro-w { cursor: text; text-decoration: none; }
+.intro-rest { display: block; font: 400 clamp(18px, 2.1vw, 22px)/1.5 var(--f-serif); letter-spacing: 0; color: var(--ink2); max-width: 44ch; margin-top: 14px; }
+.js .intro:not(.is-open) .intro-rest { display: none; }
+/* said quietly: smaller, muted, and only a link for those curious enough to follow it */
+.intro-aside { display: block; width: fit-content; margin-top: 8px; font: italic 400 .68em/1.5 var(--f-serif); color: var(--muted); text-decoration: underline dotted 1px; text-underline-offset: 3px; }
+.intro-aside:hover { color: var(--a); text-decoration-style: solid; }
 
 /* Scenes (S32) */
 .scene { min-height: 720px; display: flex; flex-direction: column; justify-content: center; border-top: 1px solid var(--rule); padding: 72px 0; }
 .who { display: flex; flex-direction: column; align-items: flex-start; gap: 9px; }
 .who h2 { font: 700 30px/1 var(--f-cond); color: var(--a); letter-spacing: -.01em; }
 .who h2 a { text-decoration: none; }
+/* Employer marks: on a small light chip so a navy or black logo still reads on the dark theme,
+   in greyscale so they sit as quiet provenance beside the oxblood, and in colour on hover. */
+/* The nav floats now, so a jump to a section must stop below it rather than under it. */
+[id] { scroll-margin-top: 76px; }
+.who-name { display: flex; align-items: center; gap: 12px; }
+.org { display: inline-flex; flex: none; padding: 3px; border-radius: 8px; background: #F6F7F4; border: 1px solid var(--rule);
+  transition: transform .2s ease, box-shadow .2s ease; }
+.org img, .org-i { display: block; border-radius: 5px; filter: grayscale(1) contrast(1.05); opacity: .82; transition: filter .25s ease, opacity .25s ease; }
+.org:hover, .org:focus-visible { transform: translateY(-1px); box-shadow: 0 6px 16px -10px color-mix(in srgb, var(--ink) 60%, transparent); }
+.org:hover img, .org:focus-visible img, .also li:hover .org-i { filter: none; opacity: 1; }
+.org-i { display: inline-block; vertical-align: -3px; margin-right: 8px; padding: 2px; background: #F6F7F4; border: 1px solid var(--rule); border-radius: 5px; }
 .who h2 a:hover { text-decoration: underline; }
 .kind { color: var(--ink2); font: 400 clamp(17px, 2vw, 19px)/1.4 var(--f-serif); max-width: 40ch; }
 
 /* What it is built with. Chips sit with the name, not in a detached skills wall: the site's
    whole argument is that a claim travels with its source, and a keyword is a claim. */
 .chips { list-style: none; display: flex; flex-wrap: wrap; gap: 7px; margin-top: 16px; }
-.chips li { font: 500 11.5px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--rule); border-radius: 999px; padding: 4px 11px; }
+.chips li { display: inline-flex; align-items: center; gap: 7px; font: 500 11.5px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--rule); border-radius: 999px; padding: 4px 11px 4px 8px; }
+/* The brand mark inside a chip. Tinted by mask, so one file serves both themes. */
+.ti { display: block; flex: none; width: 13px; height: 13px; background: var(--c, currentColor);
+  -webkit-mask: var(--i) center / contain no-repeat; mask: var(--i) center / contain no-repeat; }
+img.ti { background: none; border-radius: 3px; }
+/* A case page's stack: overlapping marks in a chain, which opens a little on hover so each mark
+   can be pointed at, and shows its name below it, where there is clear space above the meta line. */
+.case-head .chain { list-style: none; display: flex; align-items: center; margin: 18px 0 16px; padding: 0 0 0 7px; }
+.case-head .chain li { position: relative; display: grid; place-items: center; width: 32px; height: 32px; margin-left: -7px;
+  border-radius: 50%; background: var(--bg); border: 1px solid var(--rule); box-shadow: 0 0 0 2px var(--bg);
+  color: var(--muted); transition: margin .25s ease, transform .2s ease; }
+.chain li .ti { width: 16px; height: 16px; }
+.chain:hover li { margin-left: -2px; }
+.chain li:hover { transform: translateY(-2px); z-index: 2; }
+.chain-tip { position: absolute; top: calc(100% + 8px); left: 50%; transform: translate(-50%, -3px); white-space: nowrap;
+  font: 500 11px var(--f-mono); color: var(--ink); background: var(--bg); border: 1px solid var(--rule); border-radius: 999px;
+  padding: 3px 9px; opacity: 0; pointer-events: none; transition: opacity .16s ease, transform .16s ease; }
+.chain li:hover .chain-tip { opacity: 1; transform: translate(-50%, 0); }
+@media (prefers-reduced-motion: reduce) { .chain li, .chain-tip { transition: none; } .chain:hover li { margin-left: -7px; } }
+/* Recognition: a judged win, with the organiser's badge and the organiser's own announcement. */
+.recog { border-top: 1px solid var(--rule); }
+.recog-card { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 28px; align-items: center; padding: 28px 0 8px; max-width: 760px; }
+.recog-badge img { display: block; width: 120px; height: 120px; transition: transform .35s cubic-bezier(.22,.8,.2,1); }
+.recog-card:hover .recog-badge img { transform: rotate(-6deg) scale(1.03); }
+.recog-award { font: 500 12px var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--b); }
+.recog-award .when { color: var(--muted); margin-left: 12px; }
+.recog h3 { font: 700 26px/1.15 var(--f-cond); margin-top: 6px; }
+.recog h3 a { text-decoration: none; }
+.recog h3 a:hover { text-decoration: underline; }
+.recog-text { font: 400 17px/1.5 var(--f-serif); color: var(--ink2); margin-top: 8px; max-width: 56ch; }
+.recog-proof { font: 500 12.5px var(--f-mono); margin-top: 10px; }
+.recog-proof a { color: var(--muted); }
+@media (max-width: 720px) { .recog-card { grid-template-columns: 84px minmax(0, 1fr); gap: 18px; } .recog-badge img { width: 84px; height: 84px; } }
+@media (prefers-reduced-motion: reduce) { .recog-card:hover .recog-badge img { transform: none; } }
+@media (prefers-color-scheme: dark) { .ti.ink { background: currentColor; } }
 .what { font: italic 400 22px/1.3 var(--f-serif); color: var(--ink2); margin-top: 48px; }
 .big { font: 700 clamp(44px, 8vw, 72px)/1 var(--f-cond); letter-spacing: -.035em; margin-top: 6px; font-variant-numeric: tabular-nums; }
 .big i { font-style: normal; color: var(--b); }
@@ -133,6 +196,14 @@ a.lbl:hover { border-bottom-style: solid; }
 
 /* Also + contact */
 .also { border-top: 1px solid var(--rule); padding: 72px 0 24px; }
+.also summary { list-style: none; cursor: pointer; display: flex; align-items: baseline; gap: 14px; width: fit-content; }
+.also summary::-webkit-details-marker { display: none; }
+.also summary h2 { font: 700 30px/1 var(--f-cond); letter-spacing: -.01em; text-transform: none; color: var(--ink); }
+.also summary::after { content: "+"; font: 500 20px/1 var(--f-mono); color: var(--a); transition: transform .25s ease; }
+.also[open] summary::after { transform: rotate(45deg); }
+.also summary:hover h2 { color: var(--a); }
+.motto { font: italic 400 18px/1.4 var(--f-serif); color: var(--a); margin-top: 10px; }
+.case .lede { font: italic 400 21px/1.5 var(--f-serif); color: var(--ink2); max-width: 42ch; margin: 0 0 28px; }
 .also h2, .case h2 { font: 500 12px var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--a); }
 .also ul { list-style: none; margin-top: 22px; }
 .also li { display: grid; grid-template-columns: 200px 80px minmax(0, 1fr); column-gap: 22px; padding: 12px 0; border-bottom: 1px solid var(--rule); }
@@ -187,8 +258,8 @@ a.lbl:hover { border-bottom-style: solid; }
 .jr-top, .jr-bot { position: relative; height: 18px; }
 .jr-bot { margin-top: 8px; }
 .jr-lbl { position: absolute; white-space: nowrap; }
-.jr-lbl.start { transform: translateX(-4px); }
-.jr-lbl.end { transform: translateX(calc(-100% + 4px)); }
+.jr-lbl.start { transform: translateX(2px); }
+.jr-lbl.end { transform: translateX(calc(-100% - 2px)); }
 .jr-lbl.mid { transform: translateX(-50%); }
 .jr-now-l { color: var(--b); font-weight: 600; }
 .jr-track { position: relative; height: 12px; margin-top: 4px; }
@@ -199,6 +270,48 @@ a.lbl:hover { border-bottom-style: solid; }
 .jr-dot { position: absolute; top: 2px; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%; background: var(--bg); border: 1.5px solid var(--ink2); }
 .jr-start { background: var(--ink2); }
 .jr-now { top: 0; width: 12px; height: 12px; margin-left: -6px; background: var(--b); border-color: var(--b); }
+/* The dots are 8px, far too small to hit, so each carries an invisible 24px target. Adjacent
+   months overlap a little at narrow widths; the later dot wins, which is the more recent one. */
+a.jr-dot { cursor: pointer; transition: transform .2s ease, background-color .2s ease, border-color .2s ease; }
+a.jr-dot::before { content: ""; position: absolute; inset: -8px; border-radius: 50%; }
+/* No transform on hover: the preview is inside the dot and would scale with it. */
+a.jr-dot:not(.jr-now):hover, a.jr-dot:not(.jr-now):focus-visible { background: var(--b); border-color: var(--b); box-shadow: 0 0 0 3px color-mix(in srgb, var(--b) 22%, transparent); }
+a.jr-dot:focus-visible { outline: 2px solid var(--b); outline-offset: 4px; }
+.jr-lines { position: absolute; inset: 0; }
+/* The two shorter internships and the Bug Smash win: drawn while the pen passes, gone once it lands.
+   The row keeps its height either way, so nothing moves when they go. */
+.jr-noise { position: relative; height: 16px; margin-bottom: 2px; }
+.jr-ns { position: absolute; transform: translateX(-50%); white-space: nowrap; font-size: 10.5px; color: var(--muted); visibility: hidden; }
+.jr-ns.start { transform: none; }
+.jr-ns.end { transform: translateX(-100%); }
+.jr-ns.end::after { left: auto; right: 0; }
+.jr-ns::after { content: ""; position: absolute; left: 0; top: calc(100% + 2px); width: 1px; height: 24px; background: color-mix(in srgb, var(--muted) 60%, transparent); }
+
+/* Dot previews, desktop only: a stem, a circle with the picture, a sentence that stops mid-thought.
+   The box spans the stem's column so the pointer can travel up into it without losing the hover. */
+.jr-pv { display: none; }
+@media (hover: hover) and (pointer: fine) {
+  .jr-pv { display: block; position: absolute; left: 50%; bottom: 100%; width: 96px; height: 148px; margin-left: -48px; z-index: 30; visibility: hidden; cursor: pointer; }
+  .jr-pv::before { content: ""; position: absolute; left: 50%; bottom: 2px; width: 1px; height: 50px; background: var(--ink2); transform-origin: bottom; transform: scaleY(0); }
+  .jr-pv-ring { position: absolute; top: 0; left: 0; width: 96px; height: 96px; border-radius: 50%; overflow: hidden; display: grid; place-items: center;
+    background: #F6F7F4; border: 1px solid var(--rule); box-shadow: 0 10px 30px -14px color-mix(in srgb, var(--ink) 60%, transparent);
+    opacity: 0; transform: scale(.7); transform-origin: 50% 100%; }
+  .jr-pv-ring img { width: 100%; height: 100%; object-fit: cover; }
+  .jr-pv-ring img.logo { object-fit: contain; padding: 10px; }
+  .jr-pv-ring b { font: 700 38px/1 var(--f-sans); color: #fff; }
+  .jr-now .jr-pv-ring:has(b) { background: #0A66C2; border-color: #0A66C2; }   /* the LinkedIn fallback, if the photo is ever missing */
+  .jr-pv-txt { position: absolute; top: 48px; left: calc(100% + 12px); width: 230px; transform: translateY(-50%); padding: 10px 13px 9px;
+    background: var(--bg); border: 1px solid var(--rule); border-radius: 10px; box-shadow: 0 10px 30px -18px color-mix(in srgb, var(--ink) 60%, transparent);
+    font: 400 13px/1.45 var(--f-sans); letter-spacing: 0; color: var(--ink2); white-space: normal; opacity: 0; }
+  .jr-pv.flip .jr-pv-txt { left: auto; right: calc(100% + 12px); }
+  /* cut on the second line, so it reads as the start of something rather than a summary */
+  .jr-pv-txt span { display: block; max-height: 2.9em; overflow: hidden; -webkit-mask: linear-gradient(#000 40%, transparent); mask: linear-gradient(#000 40%, transparent); }
+  .jr-pv-txt em { display: block; margin-top: 3px; font: 500 11px var(--f-mono); font-style: normal; color: var(--a); }
+  a.jr-dot:hover .jr-pv, a.jr-dot:focus-visible .jr-pv { visibility: visible; }
+  a.jr-dot:hover .jr-pv::before, a.jr-dot:focus-visible .jr-pv::before,
+  a.jr-dot:hover .jr-pv-ring, a.jr-dot:focus-visible .jr-pv-ring { opacity: 1; transform: none; }
+  a.jr-dot:hover .jr-pv-txt, a.jr-dot:focus-visible .jr-pv-txt { opacity: 1; }
+}
 
 /* Pay the invoice (S37) */
 .invoice { margin: 32px 0 8px; padding: 28px 28px 22px; border: 1px solid var(--rule); border-radius: 14px; background: color-mix(in srgb, var(--ink) 3%, var(--bg)); }
@@ -334,20 +447,44 @@ a.lbl:hover { border-bottom-style: solid; }
   .sf-pulse { animation: sfpulse 1.6s ease-out infinite; transform-box: fill-box; transform-origin: center; }
   @keyframes sfpulse { from { transform: scale(1); opacity: .9; } to { transform: scale(13); opacity: 0; } }
 
-  /* Intro (S35) */
-  html.intro .top, html.intro .hero > :not(h1), html.intro #work, html.intro .also, html.intro .contact { opacity: 0; }
-  html.intro .hero h1 { opacity: 0; }
-  html.intro .hero-line { clip-path: inset(-10px 100% -10px 0); }
-  html.intro-on .hero h1 { opacity: 1; transform: translate(var(--ix), var(--iy)) scale(var(--is)); transition: opacity .8s ease; }
-  html.intro-go .hero h1 { transform: none; transition: transform 1s cubic-bezier(.65, 0, .2, 1); }
-  html.intro-go .hero-line { opacity: 1; clip-path: inset(-10px 0 -10px 0); transition: clip-path .9s cubic-bezier(.22, .8, .2, 1) .5s; }
-  html.intro-go .hero .place, html.intro-go .hero .pos, html.intro-go .top, html.intro-go #work { opacity: 1; transition: opacity .6s ease .95s; }
-  html.intro-go .hero .pos { transition-delay: 1.1s; }
+  /* Intro (S35, redrawn S60): one dot is the pen. It appears small at Nov 2022, grows, and draws the line
+     at constant speed — time passes evenly, and it means each mark's arrival is simply --p of the run.
+     It stops as the "now" dot. The line is drawn where it lives, so nothing has to move into place after. */
+  html.intro .top, html.intro .hero > :not(.journey), html.intro #work { opacity: 0; }
+  html.intro:not(.intro-go) .journey { visibility: hidden; }
+  /* The whole pace lives here: --in for the dot to appear, --run for it to cross. About 5 s end to end,
+     slow enough to read each mark as it lands rather than watch something flash past. The pen rests
+     0.8 s on each mark (HOLD in Journey.tsx). */
+  html.intro { --in: .7s; }   /* --run, and the jr-pen / jr-draw keyframes, come from Journey.tsx */
+  html.intro-go .top, html.intro-go #work { opacity: 1; transition: opacity .8s ease calc(var(--in) + var(--run) + .7s); }
+  html.intro-go .jr-lines { animation: jr-draw var(--run) linear var(--in) both; }
+  /* two animations on the one dot: it grows in place, then it travels */
+  html.intro-go .jr-now { animation: jr-grow var(--in) cubic-bezier(.3, 1.5, .6, 1) both, jr-pen var(--run) linear var(--in) backwards; }
+  @keyframes jr-grow { from { transform: scale(.15); opacity: 0; } }
+  html.intro-go .jr-now::after { animation-delay: calc(var(--in) + var(--run)); }
+  html.intro-go .jr-start, html.intro-go .jr-mk { animation: jr-pop .5s cubic-bezier(.3, 1.6, .5, 1) calc(var(--in) + var(--d)) both; }
+  @keyframes jr-pop { from { transform: scale(0); opacity: 0; } }
+  html.intro-go .jr-lbl { animation: jr-in .6s ease-out calc(var(--in) + .05s + var(--d)) both; }
+  html.intro-go .jr-ns { visibility: visible; animation: jr-in .6s ease-out calc(var(--in) + .05s + var(--d)) both, jr-out .7s ease-in calc(var(--in) + var(--run) + .3s) forwards; }
+  @keyframes jr-in { from { opacity: 0; translate: 0 4px; } }
+  @keyframes jr-out { from { opacity: 1; translate: 0 0; } to { opacity: 0; translate: 0 -3px; } }
+  html.intro-go .jr-next { animation: jr-fade .7s ease calc(var(--in) + var(--run)) both, jr-flow 1.6s linear infinite; }
+  @keyframes jr-fade { from { opacity: 0; } }
+  html.intro-go .hero > .place { animation: jr-rise .8s cubic-bezier(.22, .8, .2, 1) calc(var(--in) + var(--run) + .3s) both; }
+  html.intro-go .hero > .intro { animation: jr-rise .9s cubic-bezier(.22, .8, .2, 1) calc(var(--in) + var(--run) + .45s) both; }
+  @keyframes jr-rise { from { opacity: 0; translate: 0 10px; } to { opacity: 1; translate: 0 0; } }
   .jr-now::after { content: ""; position: absolute; inset: -1.5px; border-radius: 50%; border: 1.5px solid var(--b); animation: jr-pulse 2.4s ease-out infinite; }
   @keyframes jr-pulse { from { transform: scale(1); opacity: .8; } to { transform: scale(2.6); opacity: 0; } }
   .jr-next { animation: jr-flow 1.6s linear infinite; }
   @keyframes jr-flow { to { background-position: 10px 0; } }
-  html.intro-go .top { transition-delay: 1.25s; }
+  .intro.is-open .intro-rest { animation: jr-rise .6s cubic-bezier(.22, .8, .2, 1) both; }
+  /* previews: the stem rises, the circle grows off its tip, then the words */
+  .jr-pv { transition: visibility 0s .18s; }
+  .jr-pv::before, .jr-pv-ring, .jr-pv-txt { transition: transform .15s ease, opacity .15s ease; }
+  a.jr-dot:hover .jr-pv, a.jr-dot:focus-visible .jr-pv { transition-delay: 0s; }
+  a.jr-dot:hover .jr-pv::before, a.jr-dot:focus-visible .jr-pv::before { transition: transform .22s cubic-bezier(.22, .8, .2, 1); }
+  a.jr-dot:hover .jr-pv-ring, a.jr-dot:focus-visible .jr-pv-ring { transition: opacity .2s ease .14s, transform .4s cubic-bezier(.3, 1.4, .5, 1) .14s; }
+  a.jr-dot:hover .jr-pv-txt, a.jr-dot:focus-visible .jr-pv-txt { transition: opacity .25s ease .24s; }
 
   .psp-caret { animation: psp-blink 1.05s steps(1) infinite; }
   @keyframes psp-blink { 50% { opacity: 0; } }
@@ -520,7 +657,8 @@ a.lbl:hover { border-bottom-style: solid; }
   .wrap { padding: 20px 16px 48px; }
   .top nav a { margin-left: 16px; }
   .top nav .ext { display: none; }
-  .hero { min-height: min(70svh, 600px); }
+  .hero { min-height: calc(100svh - 76px); }
+  .jr-noise { display: none; }
   .scene { min-height: 0; padding: 64px 0; }
   .what { margin-top: 36px; font-size: 19px; }
   .ruler text { font-size: 28px; }

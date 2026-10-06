@@ -5,8 +5,9 @@ export const s = scenes.find((x) => x.slug === 'capstone')
 
 <CaseHead
   title="Capstone"
-  result="Overall Team Winner at Melbourne Institute of Technology's IMPACT 2025 capstone showcase, for a payment gateway built for a real client, Skill Sync, that gives every payment its own address."
-  meta="Lead decision-maker and main implementer · team of five, then three · 64 of 75 commits across all branches mine (5 through the Aider coding assistant) · Node.js, Web3.js, Infura, React/TypeScript · Sepolia testnet"
+  result="A crypto payment gateway for a real client, Skill Sync, that gives every payment its own address. Overall Team Winner at Melbourne Institute of Technology's IMPACT 2025 capstone showcase."
+  meta="Lead decision-maker and main implementer · team of five, then three · Sepolia testnet"
+  stack={['Node.js', 'TypeScript', 'React', 'Web3.js', 'Ethereum', 'Infura']}
   links={[{ text: 'Source', href: repo.capstone }, { text: 'Demo', href: 'https://cryptogate.vercel.app' }]}
 />
 
@@ -86,6 +87,7 @@ And from the code:
 ## Sources
 
 <ul className="sources">
+  <Src id="history" href="https://github.com/My-CMDhub/Blockchain-based-Industry-Project">Commit history: 64 of 75 commits across all branches are mine, 5 of them through the Aider coding assistant.</Src>
   <Src id="repo" href={repo.capstone}>The repository</Src>
   <Src id="amount" href={`${repo.capstone}/commits/main/server/utils/web3Utils.js`}>History of the amount check (isPaymentAmountCorrect)</Src>
   <Src id="derivation" href={`${repo.capstone}/blob/main/fix-derivation-indexes.js`}>fix-derivation-indexes.js, and recover-and-release.js beside it</Src>

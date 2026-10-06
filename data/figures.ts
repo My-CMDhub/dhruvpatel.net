@@ -12,14 +12,22 @@ export type Label = { status: Status; note: string; href?: string }
 
 export const site = {
   name: 'Dhruv Patel',
-  place: 'Software engineer · near Melbourne',
+  role: 'Backend & applied-AI engineer · near Melbourne',
+  // The hero sentence, ending at "model": the next two sentences arrive when that word is clicked. With JS off it is all there.
+  intro: {
+    lead: 'I build the systems around the',
+    word: 'model',
+    rest: 'That means the rules it has to follow, the person using it, and what it costs to run in the real world. I measure it before I trust it.',
+    // A quiet admission, linked to the one case where the order was reversed (its card says "Deployed first, understood second").
+    aside: { text: 'Once, at Audacix, it went the other way round.', href: '#audacix' },
+  },
   positioning:
-    'I build the system around the model (the business constraint, the real behaviour, the person using it, the running cost) and measure them before I believe them.',
+    'Backend and applied-AI engineer. I build the software around an AI model: the rules it must follow, the person using it, what it costs to run to meet reality, and I measure it before I trust it.',
   // In his own words. Kept to two sentences: the second one is the trade-off, and it is the half
   // that makes the first half believable.
   me: 'I like finding the part nobody expected to fail. I think in systems, and the trade-off is that I sometimes see more problems than I need to solve.',
   invite:
-    'If any of this is close to what you’re building, I’d like to hear about it — a question, a role, or a place where you think I’m wrong. I reply to all of it.',
+    'If any of this is close to what you’re building, I’d like to hear about it, whether it’s a question, a role, or a place where you think I’m wrong. I reply to all of it.',
   email: 'dppatel20004@gmail.com',
   github: 'https://github.com/My-CMDhub',
   linkedin: 'https://www.linkedin.com/in/dhruvpatel-profile/',
@@ -46,11 +54,13 @@ export type Scene = {
   name: string
   kind: string
   stack?: string[]   // at most six, and only what the work actually used
+  org?: { name: string; href: string; logo: string }   // employers only: their own site, their own mark
   what: string
   from: string
   to: string
   ruler: Ruler
   label: Label
+  motto?: string   // one line under the change, in his words
   notYet: string
   ledger: Row[]
 }
@@ -61,19 +71,19 @@ export const scenes: Scene[] = [
     group: 'project',
     name: 'Ovela',
     kind: 'a voice receptionist on a real phone line',
-    stack: ['Python', 'FastAPI', 'asyncio', 'Twilio', 'STT', 'TTS'],
+    stack: ['Python', 'FastAPI', 'Twilio', 'Deepgram', 'OpenAI', 'Cartesia'],
     what: 'The first reply of a call',
     from: '3.7 s',
     to: '0.9 s',
     ruler: { scale: 'linear', max: 4, unit: 's', from: 3.7, to: 0.9 },
     label: { status: 'measured', note: 'from the moment the speech model calls the turn over · one call before, one after', href: '/work/ovela/#src-readme' },
-    notYet: (live as Record<string, string>).ovela ?? 'as fast when a tool runs · 1.1–1.7 s',
+    notYet: (live as Record<string, string>).ovela ?? 'under a second from the caller’s last word · 1.5–1.7 s',
     ledger: [
       { tag: 'SAW', text: 'The first reply of each call was the slowest, well over a second behind the rest.', value: '3.7 s', sub: 'first reply' },
       { tag: 'SAW', text: 'Two causes: a cold first model call, and a lookup that could only say “ask who is calling”.', value: '12 / 15', sub: 'replays wasted a lookup' },
       { tag: 'CHANGED', text: 'The first request is sent once while the greeting plays. The agent asks who’s calling before looking anything up.', value: '0 / 15', sub: 'wasted lookups' },
       { tag: 'HOLDS', text: 'First reply of a call.', value: '0.9 s', sub: 'one call before, one after' },
-      { tag: 'NOT YET', text: 'Replies that need a tool still wait on the tool’s round trip.', value: '1.1–1.7 s', sub: 'two tool turns' },
+      { tag: 'NOT YET', text: 'Under a second from the caller’s last word. End-of-turn detection and the round trip to a US server take about 0.8 s before the model starts, so a faster model alone can’t close it.', value: '1.5–1.7 s', sub: 'real calls, from the recordings' },
     ],
   },
   {
@@ -82,19 +92,19 @@ export const scenes: Scene[] = [
     name: 'Agent-OS',
     kind: 'a harness built for an AI model to operate a Mac',
     stack: ['Swift', 'SwiftUI', 'macOS Accessibility', 'Keychain', 'Swift Testing'],
-    what: 'A request queued behind a 3-second action',
+    what: 'How long a command waited behind a slow one',
     from: '2,864 ms',
     to: '5 ms',
     ruler: { scale: 'log', from: 2864, to: 5 },
     label: { status: 'measured', note: 'median of 5 · log scale', href: '/work/agent-os/#src-readme' },
-    notYet: (live as Record<string, string>)['agent-os'] ?? 'a model driving it · its actions are hand-written for now',
+    notYet: (live as Record<string, string>)['agent-os'] ?? 'memory across sessions · apps without a readable structure',
     ledger: [
       { tag: 'SAW', text: 'Requests ran on the main thread, so one slow action held up everything behind it.', value: '8,520 ms', sub: 'stalls in one planner run' },
       { tag: 'CHANGED', text: 'Requests moved off the main thread.', value: '2.8 ms', sub: 'longest stall after' },
       { tag: 'HOLDS', text: 'A request queued behind a 3-second action.', value: '5 ms', sub: 'median of 5' },
-      { tag: 'SAW', text: 'The busy main thread had been silently stopping anything from pressing buttons in the harness’s own approval panel.' },
-      { tag: 'CHANGED', text: 'An explicit refusal, targetIsHarnessItself, shipped in the same commit.' },
-      { tag: 'NOT YET', text: 'The planner’s intents are hand-written. No model drives it yet.' },
+      { tag: 'SAW', text: 'The slowness was hiding a hole: the harness’s own approval panel was only safe because it was too busy to respond.' },
+      { tag: 'CHANGED', text: 'So I added a rule that refuses it outright, in the same change.' },
+      { tag: 'NOT YET', text: 'No memory across sessions, and apps without a readable structure are out of reach.' },
     ],
   },
   {
@@ -103,7 +113,7 @@ export const scenes: Scene[] = [
     name: 'Capstone',
     kind: 'an Ethereum payment gateway for a real client · overall winner, IMPACT 2025 capstone showcase',
     stack: ['Node.js', 'TypeScript', 'React', 'Web3.js', 'Ethereum', 'Infura'],
-    what: 'How far a payment may be from the amount asked, on a 0.05 ETH order',
+    what: 'How far off a payment could be and still count as paid',
     from: '±0.5%',
     to: `±${+mayPct.toFixed(4)}%`,
     ruler: { scale: 'band' },
@@ -122,8 +132,9 @@ export const scenes: Scene[] = [
     slug: 'silverpond',
     group: 'internship',
     name: 'Silverpond',
-    kind: 'an agent architecture for a multi-tenant platform · internship',
-    stack: ['Python', 'FastAPI', 'AWS STS', 'ECS Fargate', 'CloudFormation', 'LLM agents'],
+    kind: 'letting customers connect their cloud accounts without handing over keys · internship',
+    org: { name: 'Silverpond', href: 'https://silverpond.com.au/', logo: '/logos/silverpond.png' },
+    stack: ['Python', 'FastAPI', 'AWS STS', 'ECS Fargate', 'CloudFormation', 'Managed Agents'],
     what: 'What a new customer hands over',
     from: 'a stored AWS key',
     to: 'nothing to store',
@@ -141,7 +152,7 @@ export const scenes: Scene[] = [
       { tag: 'CHANGED', text: 'Setup became a stack the customer launches themselves, then two values typed in and one option chosen. Everything after it is automated.', value: '~2 min', sub: 'of the customer’s own clicking · projected' },
       { tag: 'CHANGED', text: 'The design was proven in a FastAPI prototype and reviewed before anyone changed the production app.' },
       { tag: 'HOLDS', text: 'The agent’s first-turn search, once retrieval read an index before it read files.', value: '23.4 s → 3.9 s', sub: 'repeated runs' },
-      { tag: 'NOT YET', text: 'How the agent should decide which case you’re asking about — an explicit ID, the most recent one, or inferred — was never settled while I was there.' },
+      { tag: 'NOT YET', text: 'How the agent should tell which case you’re asking about was never settled while I was there. It could take an explicit ID, use the most recent one, or infer it.' },
     ],
   },
   {
@@ -149,6 +160,7 @@ export const scenes: Scene[] = [
     group: 'internship',
     name: 'Audacix',
     kind: 'the assistant inside a live security scanner · internship',
+    org: { name: 'Audacix', href: 'https://www.audacix.com/', logo: '/logos/audacix.png' },
     stack: ['Django', 'PostgreSQL', 'vLLM', 'Qwen 2.5', 'Guardrails AI', 'AWS'],
     what: 'The model behind the scanner’s assistant',
     from: 'Llama\u00a03.1',
@@ -162,29 +174,41 @@ export const scenes: Scene[] = [
       ],
     },
     label: { status: 'first-hand', note: 'switched Oct 2025 · no benchmark numbers', href: '/work/audacix/#src-account' },
-    notYet: 'published numbers for the model comparison',
+    // Not "measured second": the label beside it says no benchmark numbers. What came later was working out why it fitted.
+    motto: 'Deployed first, understood second.',
+    notYet: 'a written behaviour test for the model choice',
     ledger: [
       { tag: 'SAW', text: 'The assistant ran on Llama 3.1 8B at 4-bit, on a GPU with little memory to spare.' },
-      { tag: 'CHANGED', text: 'Qwen 2.5 7B at 8-bit: it followed the format, held the guardrails, and was faster for the same GPU memory. A smaller context left headroom.', value: 'Qwen 2.5 7B', sub: '8-bit, vLLM' },
+      { tag: 'CHANGED', text: 'Qwen 2.5 7B at 8-bit: it followed the format, held the guardrails, and left room for several users at once on the same GPU.', value: 'Qwen 2.5 7B', sub: '8-bit, vLLM' },
       { tag: 'CHANGED', text: 'The guardrails framework could only check a finished answer. I streamed it instead and checked it a few sentences at a time on CPU, stopping the stream the moment a piece failed. No new GPU.', value: 'streamed', sub: 'and still guarded' },
       { tag: 'CHANGED', text: 'Context comes straight from the user’s own scan records and a small fixed knowledge base. No vector database to run or keep in sync.' },
       { tag: 'HOLDS', text: 'Still live in the scanner: one question answered, two misuse attempts blocked.', value: '2 / 2', sub: 'misuse blocked' },
-      { tag: 'NOT YET', text: 'The comparison and the guardrail tests weren’t recorded as numbers I can publish.' },
+      { tag: 'NOT YET', text: 'No written behaviour test behind the model switch, and the guardrail pass rates weren’t recorded. Next time I’d write the test set first.' },
     ],
   },
 ]
 
-// The capstone band on one example order (0.05 ETH), in % deviation from the amount asked.
-// `now` is measured by running the real 10 May rule (data/amountRules.ts), not typed in.
 export const band = {
   old: 0.5,
   now: mayPct,
   short: -0.5, // 0.00025 ETH short
 }
 
-export const also: { name: string; when: string; text: string; href?: string }[] = [
-  { name: 'EdgenAI', when: '2025–26 · internship', text: 'LangGraph workflows and output guardrails for an LLM rubric generator.' },
-  { name: 'Royal Humane Society', when: '2025 · internship', text: 'Digitising 150 years of handwritten award records. Flask, a paid OCR service, a search page with CSV export — and a local-LLM extractor I handed over labelled experimental because it invented values.' },
+export const recognition = [
+  {
+    title: 'DEV Summer Bug Smash 2026',
+    award: 'Winner · Best Use of Google AI',
+    when: 'Sep 2026',
+    text: 'One of five winners, for six bugs in Ovela that reported success while they were failing. The worst was an agent that said goodbye and never hung up.',
+    href: 'https://dev.to/mycmdhub/six-silent-bugs-in-a-voice-ai-phone-line-392',
+    proof: 'https://dev.to/devteam/congrats-to-the-summer-bug-smash-winners-50ei',
+    image: '/media/bugsmash.png',
+  },
+]
+
+export const also: { name: string; when: string; text: string; href?: string; logo?: string }[] = [
+  { name: 'EdGenAI', when: '2025–26 · internship', text: 'LangGraph workflows and output guardrails for an LLM rubric generator.', href: 'https://www.edgenai.com.au/', logo: '/logos/edgenai.png' },
+  { name: 'Royal Humane Society', when: '2025 · internship', href: 'https://www.rhsa.org.au/', logo: '/logos/rhsa.png', text: 'Digitising 150 years of handwritten award records. Flask, a paid OCR service, and a search page with CSV export. The local-LLM extractor I handed over is labelled experimental, because it invented values.' },
   { name: 'Grocery agent', when: '2025–26 · project', text: 'Works out when you next need the shops and messages you on WhatsApp. The prediction is arithmetic on your own purchase gaps; the model only writes the message.', href: 'https://github.com/My-CMDhub/Grocery-Prediction-AI-Agent' },
   { name: 'Courier quote calculator', when: '2025 · project', text: 'No model anywhere in it: the agency’s real pricing brackets, an admin price sheet, and a deployed quote form. Express.', href: 'https://github.com/My-CMDhub/Estimate-Courier-Quote-generator' },
   { name: 'Solar Saver', when: '2026 · front end', text: 'A landing page paced as one scroll rather than six sections that each animate. Lenis, GSAP and Framer Motion, each doing the one thing it is good at. The two WebGL backgrounds are React Bits’, and the README says which.', href: 'https://solvac.vercel.app' },
@@ -195,11 +219,18 @@ export const journey = {
   start: '2022-11',
   study: { to: '2025-06', label: 'studying' },
   work: { label: 'building' },
+  // `img` is a list: the first file that exists in public/ is used, so a photo can be dropped in later.
   marks: [
-    { at: '2025-05', label: 'IMPACT win', side: 'end' },
-    { at: '2025-07', label: 'Audacix', side: 'start' },
-    { at: '2026-05', label: 'Silverpond', side: 'end' },
+    { at: '2025-06', label: 'IMPACT win', side: 'end', href: '/work/capstone/', img: ['/media/impact-team.jpg', '/media/capstone-demo.jpg'], text: 'Our capstone, an Ethereum payment gateway for a real client, won overall at the IMPACT 2025 showcase. I was the lead decision-maker on how it' },
+    { at: '2025-07', label: 'Audacix', side: 'start', href: '/work/audacix/', img: ['/media/cyberchief-logo.png'], text: 'CyberChief, a live web security scanner. I chose the model behind its assistant and kept its guardrails working while the answers streamed' },
+    { at: '2026-05', label: 'Silverpond', side: 'end', href: '/work/silverpond/', img: ['/logos/highlighter.svg'], text: 'Highlighter, Silverpond’s own product. I designed how an AI agent works inside it, so customers can connect their cloud accounts without handing' },
+  ] as { at: string; label: string; side: 'start' | 'end'; href: string; img: string[]; text: string }[],
+  now: { img: ['/media/me.jpg'], text: 'Building Ovela and Agent-OS. What I’m working on this week goes up on LinkedIn first, usually with' },
+  noise: [
+    { at: '2025-06', label: 'RHSA', side: 'end' },
+    { at: '2025-12', label: 'EdGenAI', side: 'start' },
+    { at: '2026-09', label: 'Bug Smash win', side: 'end' },
   ] as { at: string; label: string; side: 'start' | 'end' }[],
-  ahead: 6, // months of dashed line past now
-  says: 'Studied at Melbourne Institute of Technology from November 2022 to June 2025, winning its IMPACT showcase in May 2025. Internships at Audacix from July to October 2025 and Silverpond from May to August 2026. Building Ovela and Agent-OS now.',
+  ahead: 6,
+  says: 'Studied at Melbourne Institute of Technology from November 2022 to June 2025, winning its IMPACT showcase in June 2025. Internships at Audacix from July to October 2025 and Silverpond from May to August 2026. Building Ovela and Agent-OS now.',
 }

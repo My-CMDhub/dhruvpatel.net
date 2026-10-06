@@ -1,6 +1,7 @@
 import type { Scene as SceneT } from '@/data/figures'
 import { Ruler } from './Ruler'
 import { Lbl } from './Label'
+import { Mark } from './Mark'
 
 export function Ledger({ rows }: { rows: SceneT['ledger'] }) {
   return (
@@ -25,14 +26,22 @@ export function Scene({ s }: { s: SceneT }) {
   return (
     <section className="scene" id={s.slug} aria-labelledby={`h-${s.slug}`}>
       <div className="who">
-        <h2 id={`h-${s.slug}`} style={{ ['viewTransitionName' as string]: `name-${s.slug}` }}><a href={`/work/${s.slug}/`}>{s.name}</a></h2>
+        <div className="who-name">
+          {s.org && (
+            <a className="org" href={s.org.href} target="_blank" rel="noopener noreferrer" aria-label={`${s.org.name} website, opens in a new tab`}>
+              <img src={s.org.logo} alt="" width={26} height={26} />
+            </a>
+          )}
+          <h2 id={`h-${s.slug}`} style={{ ['viewTransitionName' as string]: `name-${s.slug}` }}><a href={`/work/${s.slug}/`}>{s.name}</a></h2>
+        </div>
         <span className="kind">{s.kind}</span>
       </div>
-      {s.stack && <ul className="chips">{s.stack.map((t) => <li key={t}>{t}</li>)}</ul>}
+      {s.stack && <ul className="chips">{s.stack.map((t) => <li key={t}><Mark name={t} />{t}</li>)}</ul>}
       <p className="what">{s.what}</p>
       <p className="big">
         <s>{s.from}</s> <span aria-label="to">→</span> <i>{s.to}</i>
       </p>
+      {s.motto && <p className="motto">{s.motto}</p>}
       <Ruler scene={s} />
       {s.ruler.scale === 'band' && (
         <ul className="legend">

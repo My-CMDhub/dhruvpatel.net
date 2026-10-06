@@ -3,7 +3,8 @@ export const metadata = { title: 'Audacix', description: "A security product's a
 <CaseHead
   title="Audacix"
   result="An assistant that explains a user's own security scan, running on a locally hosted model chosen for the hardware it had to run on."
-  meta="Full-Stack Developer intern · Jul–Oct 2025 · Django, PostgreSQL, AWS, vLLM, Qwen 2.5, Guardrails AI · the assistant is still live in the Cyber Chief scanner"
+  meta="Full-Stack Developer intern · Jul–Oct 2025 · the assistant is still live in the Cyber Chief scanner"
+  stack={['Django', 'PostgreSQL', 'AWS', 'vLLM', 'Qwen 2.5', 'Guardrails AI']}
   links={[{ text: 'Run a scan', href: 'https://scan.cyberchief.ai/noSSL/' }]}
 />
 
@@ -11,9 +12,11 @@ export const metadata = { title: 'Audacix', description: "A security product's a
 
 ## How it was earned
 
-### Choosing the model on the real constraint
+### Choosing the model, and why it worked
 
-The assistant ran on Llama 3.1 8B, quantised to 4-bit, on a single 16 GB GPU. That GPU was the constraint, so the first filter was arithmetic: at full 16-bit precision, neither Llama 3.1 8B, Qwen 2.5 7B nor a DeepSeek R1 distill of the same size loads with room left to answer anyone.
+The assistant ran on Llama 3.1 8B, quantised to 4-bit, on a single 16 GB GPU shared by everyone using it. I moved it to Qwen 2.5 7B at 8-bit, and I chose on practical grounds: enough context for a user's scan, room for several people asking at once at a steady speed, and how each model behaved, reasoned and held its guardrails.
+
+The table below is arithmetic I worked out afterwards. It explains why the choice worked; it isn't how I made it. At full 16-bit precision, none of the candidates loads with room left to answer anyone.
 
 <div className="tw">
 <table className="fit">
@@ -32,13 +35,13 @@ The assistant ran on Llama 3.1 8B, quantised to 4-bit, on a single 16 GB GPU. Th
 
 <p className="cap"><L s="source" n="weights: published sizes on Hugging Face · room: arithmetic, not measured" src="fit" /></p>
 
-The surprise is the last two rows. Qwen at 8-bit has bigger weights than Llama at 4-bit, yet leaves more room for context: its memory per token of context is less than half Llama's, with 4 key-value heads to Llama's 8 and 28 layers to 32. Better precision cost us no context.
+The last two rows are why it worked. Qwen at 8-bit has bigger weights than Llama at 4-bit, yet leaves more room for context: its memory per token of context is less than half Llama's, with 4 key-value heads to Llama's 8 and 28 layers to 32. Better precision cost no context.
 
-I stress-tested the ones that fit. The 14B loaded but barely ran. Among the rest we ranked latency first, then how well the model stayed inside the assistant's scope and followed its output format, then how it handled the code and reasoning that web-security questions need. Qwen 2.5 7B at 8-bit won on all three. I made the switch in October 2025, set its context window deliberately smaller than the room it had, to keep memory headroom, and tuned vLLM's settings for latency.
+I stress-tested the ones that fit. The 14B loaded but barely ran. Among the rest I looked at speed, at how well each stayed inside the assistant's scope and followed its output format, and at how it handled the code and reasoning that web-security questions need. On speed the two came out about equal, so the choice came down to behaviour and room. There was no written behaviour benchmark behind it, and next time I'd build that test set first. I made the switch in October 2025, set its context window below the maximum to keep memory headroom, and tuned vLLM's settings for latency.
 
 So that speed was measured rather than felt, the assistant logs time to first token and tokens per second on every answer.
 
-<L s="first-hand" n="stress tests from memory · the written results stayed with Audacix" src="account" />
+<L s="first-hand" n="stress tests, from memory · no written behaviour benchmark" src="account" />
 
 ### Guarding a stream without new compute
 
@@ -58,14 +61,14 @@ The assistant answers questions about *this* user's scan. That data was already 
 
 ### Debugging past my own component
 
-Users waited more than five minutes for an SSL/TLS result that never arrived. The scan wasn't slow; it had never started: one path through the scanner marked the request complete without ever queuing the scan. I made it queue a linked background SSL scan and put its result on the report when it finishes.
+Users waited minutes for a scan result that never came. The scan wasn't slow; it had never started, because one path marked the request complete without queuing the work. I traced it past my own component and made that path queue the scan and add its result to the report when it finished.
 
 ## What stands
 
 Still in the live product, although some layouts have changed since:
 
 - the assistant, on the scan results;
-- the SSL/TLS scan fix;
+- the scan-queuing fix;
 - the certification offered to sites that score 4+ out of 7;
 - technology detection and JavaScript vulnerability detection;
 - security headers and frontend changes.

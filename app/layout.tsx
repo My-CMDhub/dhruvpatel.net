@@ -19,19 +19,18 @@ export const metadata: Metadata = {
 // CSS only runs the before-state when motion is allowed — so no-JS and reduced-motion see the result.
 // Page to page (S56): both headings are snapshotted in oxblood so nothing cross-fades, then the real
 // one settles to ink; "\u2190 Work" steps back through history so your place on the home page returns.
-// Intro (S35): home page, once per visit, motion allowed. The name opens centred, settles into place, the
-// measuring line draws, the rest arrives. Any scroll, tap or key finishes it at once; 3.5 s is a hard stop.
+// Intro (S35, redrawn S60): home page, once per visit, motion allowed. A dot draws the journey line from
+// Nov 2022 to now, then the sentence and nav arrive (the CSS holds the timing). Any scroll, tap or key
+// finishes it at once; 8 s is a hard stop.
 const motion = `(function(){var d=document.documentElement;d.classList.add('js');
 try{d.setAttribute('data-reader',localStorage.getItem('reader')||'look')}catch(e){}
 var calm=matchMedia('(prefers-reduced-motion: reduce)').matches,seen=1;
 try{seen=sessionStorage.getItem('intro');sessionStorage.setItem('intro','1')}catch(e){}
 if(!calm&&!seen&&location.pathname==='/'&&!location.hash){d.classList.add('intro');
-var ev=['wheel','touchstart','keydown','pointerdown'],done=function(){d.classList.remove('intro','intro-on','intro-go');ev.forEach(function(n){removeEventListener(n,done)})};
-ev.forEach(function(n){addEventListener(n,done,{passive:true})});setTimeout(done,3400);
+var ev=['wheel','touchstart','keydown','pointerdown'],done=function(){d.classList.remove('intro','intro-go');ev.forEach(function(n){removeEventListener(n,done)})};
+ev.forEach(function(n){addEventListener(n,done,{passive:true})});setTimeout(done,8000);
 addEventListener('DOMContentLoaded',function(){var go=function(){if(!d.classList.contains('intro'))return;
-var h=document.querySelector('.hero h1'),r=h.getBoundingClientRect(),w=innerWidth,s=Math.min(1.25,.86*w/r.width);
-h.style.setProperty('--ix',(w/2-r.left-r.width/2)+'px');h.style.setProperty('--iy',(innerHeight/2-r.top-r.height/2)+'px');h.style.setProperty('--is',s);
-d.classList.add('intro-on');setTimeout(function(){d.classList.add('intro-go')},700);setTimeout(done,2700)};
+d.classList.add('intro-go');setTimeout(done,7100)};
 Promise.race([document.fonts.ready,new Promise(function(r){setTimeout(r,400)})]).then(go)})}
 addEventListener('pageswap',function(e){if(e.viewTransition)d.classList.add('vt-arrive')});
 addEventListener('pagereveal',function(e){if(!e.viewTransition)return;d.classList.add('vt-arrive');

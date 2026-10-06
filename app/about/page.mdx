@@ -1,3 +1,5 @@
+import { site } from '@/data/figures'
+
 export const metadata = { title: 'About', description: 'How I got here, and how I use AI assistants in my work.' }
 
 <article className="case">
@@ -5,13 +7,15 @@ export const metadata = { title: 'About', description: 'How I got here, and how 
   <h1>About</h1>
 </header>
 
+<p className="lede">{site.me}</p>
+
 I studied for a networking degree, majoring in software engineering, at Melbourne Institute of Technology, finishing in 2025. Our capstone, a payment gateway for a real client, won overall at the university's IMPACT 2025 capstone showcase.
 
-Since then I've done four internships. At the Royal Humane Society I digitised handwritten award records going back to the 1870s. Tesseract couldn’t read the handwriting, so the OCR moved to a paid service — Mistral OCR first, then LLMWhisperer — with a daily spend limit checked before each call rather than after. The staff got a search page over 150 years of reports with CSV export. The part that was meant to pull out structured fields ran on a local model on the hardware they had, and it invented values; I handed that over labelled experimental and made the reference data for several decades by hand instead. At Audacix I worked across a web security scanner and chose the local model behind its assistant. At EdgenAI I built LangGraph workflows and output guardrails for a rubric generator. At Silverpond I designed an agent architecture for a multi-tenant platform and built it into their Rails product.
+Since then I've done two engineering internships and two shorter placements. At the Royal Humane Society I digitised handwritten award records going back to the 1870s. Tesseract couldn’t read the handwriting, so the OCR moved to a paid service — Mistral OCR first, then LLMWhisperer — with a daily spend limit checked before each call rather than after. The staff got a search page over 150 years of reports with CSV export. The part that was meant to pull out structured fields ran on a local model on the hardware they had, and it invented values; I handed that over labelled experimental and made the reference data for several decades by hand instead. At Audacix I worked across a web security scanner and chose the local model behind its assistant. At EdGenAI I built LangGraph workflows and output guardrails for a rubric generator. At Silverpond I designed an agent architecture for a multi-tenant platform and built it into their Rails product.
 
 Alongside those I completed a Professional Year program, August 2025 to August 2026 — an Australian graduate program of workplace training and a professional placement. Silverpond was the placement.
 
-Outside work I build Ovela, a voice receptionist, and Agent-OS, a harness for operating a Mac. Both are open source, with their measurements and limits in the README.
+Outside work I build Ovela, a voice receptionist, and Agent-OS, a harness for operating a Mac. Both are open source, with their measurements and limits in the README. In September 2026 Ovela was one of five winners of Best Use of Google AI in DEV's Summer Bug Smash, for [six bugs that reported success while failing](https://dev.to/mycmdhub/six-silent-bugs-in-a-voice-ai-phone-line-392).
 
 ## How I think
 
@@ -23,5 +27,5 @@ Away from a screen: long drives, with the music loud.
 
 ## How I use AI assistants
 
-Much of my implementation is written with AI coding assistants, and the commit counts on these pages include that work. The architecture, the measurements, the debugging and the corrections, including the claims I've withdrawn, are mine.
+Much of my implementation is written with AI coding assistants, and the commit counts in each project's sources include that work. The architecture, the measurements, the debugging and the corrections, including the claims I've withdrawn, are mine.
 </article>

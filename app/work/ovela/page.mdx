@@ -5,9 +5,10 @@ export const s = scenes.find((x) => x.slug === 'ovela')
 
 <CaseHead
   title="Ovela"
-  result="A voice receptionist on a real phone line. In the two calls below it starts speaking a median 1.0 s after the caller's last word — 0.9–1.7 s across seven replies, tool turns included — and it's built around the parts of a call that usually go wrong."
-  label={{ status: 'measured', note: 'from the unedited recordings · 7 replies across two calls', href: '#src-readme' }}
-  meta="Personal project · no customers; every call is my own test call · Python, FastAPI, asyncio, Twilio, STT, LLM, TTS, Appwrite, Next.js · 1,949 tests"
+  result="A voice receptionist on a real phone line, built around the parts of a call that usually go wrong. In the two recorded calls below it starts answering about a second after the caller stops talking."
+  label={{ status: 'measured', note: 'median 1.0 s, 0.9–1.7 s across 7 replies · from the unedited recordings', href: '#src-readme' }}
+  meta="Personal project · no customers; every call is my own test call"
+  stack={['Python', 'FastAPI', 'Twilio', 'Deepgram', 'OpenAI', 'Cartesia', 'Appwrite', 'Next.js']}
   links={[{ text: 'Source', href: repo.ovela }, { text: 'ovela.dev', href: 'https://ovela.dev' }]}
 />
 
@@ -59,7 +60,7 @@ Swapping the model changed behaviour the code had silently depended on. The new 
 
 Now the code speaks the tool's own farewell when the model didn't, a hang-up can't be cancelled by whatever the caller says next, and a turn with no words in it ends at once.
 
-<L s="measured" n="one live call before, one after · 5 regression tests, each failing without the fix" src="readme" />
+<L s="measured" n="one live call before, one after · regression tests that fail without the fix" src="readme" />
 
 ### What did the caller actually hear?
 
@@ -84,11 +85,10 @@ When the model reached for a tool, the caller heard nothing for 2.3–4.3 s. Now
 - No-tool replies start 0.6–0.8 s after the speech model calls the turn over.
 - Identity: 24 of 28 real guests found from misheard details, 0 of 8 non-guests invented, 0 wrong guest.
 - Four actions gated in code.
-- 1,949 tests.
 
 ## What it still doesn't do
 
-- **Tool replies take {s.ledger.at(-1).value}.** The remaining latency is the tool round trip, not the model.
+- **Under a second from the caller’s last word, on real calls.** It’s 1.5–1.7 s today, measured from the call recordings. About 0.8 s of that is end-of-turn detection and the round trip to a US server before the model starts, so a faster model alone can’t close it.
 - **Identity is confirmed on one matching word of the name**, so a relative sharing the surname passes.
 - **Gates judge agreement from word patterns**, so an unusual "yes" can be refused.
 - **No caller has ever been a stranger.** Every call is mine, or a script's.
