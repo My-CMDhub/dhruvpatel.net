@@ -220,6 +220,7 @@ a.lbl:hover { border-bottom-style: solid; }
 .back a { color: var(--muted); text-decoration: none; }
 .case-head h1 { font-size: clamp(56px, 10vw, 88px); }
 .result { font: 400 clamp(19px, 2.4vw, 24px)/1.45 var(--f-serif); color: var(--ink2); margin-top: 22px; max-width: 36ch; }
+.result-more { font: 400 16.5px/1.6 var(--f-sans); color: var(--muted); margin-top: 12px; max-width: 58ch; }
 .meta { font: 13px/1.7 var(--f-mono); color: var(--muted); margin-top: 28px; }
 .links { margin-top: 14px; display: flex; gap: 22px; flex-wrap: wrap; font: 600 15px var(--f-sans); }
 .links a { color: var(--a); }
