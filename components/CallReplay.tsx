@@ -221,7 +221,7 @@ export function CallReplay() {
 
   return (
     <figure className="callr" aria-labelledby="cr-h">
-      <p className="inv-eye" id="cr-h">Two real calls</p>
+      <p className="inv-eye" id="cr-h">Two calls</p>
 
       <div className="cr-tabs" role="group" aria-label="Which call">
         {TABS.map((x) => (

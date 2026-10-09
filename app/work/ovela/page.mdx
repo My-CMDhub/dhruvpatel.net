@@ -7,7 +7,7 @@ export const s = scenes.find((x) => x.slug === 'ovela')
   title="Ovela"
   result="A voice receptionist on a real phone line, built around the parts of a call that usually go wrong. In the two recorded calls below it starts answering about a second after the caller stops talking."
   label={{ status: 'measured', note: 'median 1.0 s, 0.9–1.7 s across 7 replies · from the unedited recordings', href: '#src-readme' }}
-  meta="Personal project · no customers; every call is my own test call"
+  meta="Personal project · every call is my own test call"
   stack={['Python', 'FastAPI', 'Twilio', 'Deepgram', 'OpenAI', 'Cartesia', 'Appwrite', 'Next.js']}
   links={[{ text: 'Source', href: repo.ovela }, { text: 'ovela.dev', href: 'https://ovela.dev' }]}
 />
@@ -18,7 +18,7 @@ export const s = scenes.find((x) => x.slug === 'ovela')
 
 Every answer time on this page says which clock it is on.
 
-The **caller's clock** starts at the caller's actual last word, measured from the recording. The **pipeline clock** starts later, when the speech model decides the caller has finished. On the same calls the caller's clock runs about 0.5–1.0 s longer, and most of that gap is not my code: it is end-of-turn detection, and the phone audio crossing from Australia to a US server and back.
+The **caller's clock** starts at the caller's actual last word, measured from the live test. The **pipeline clock** starts later, when the speech model decides the caller has finished. On the same calls the caller's clock runs about 0.5–1.0 s longer, and most of that gap is not in code but it is end-of-turn detection, and the phone audio crossing from Australia to a US server and back.
 
 So: a model that answered instantly would still leave a caller here waiting about 0.8 s. That is the floor this architecture has, and it is why the section below is about where a benchmark is held rather than which model wins.
 
@@ -26,29 +26,29 @@ So: a model that answered instantly would still leave a caller here waiting abou
 
 ### A "yes" isn't agreement to everything
 
-The booking tool trusted a flag the model filled in to say the summary had been read back. In 4 of 7 attempts it claimed a confirmation the caller never gave; in one, a "yes" to an email spelling booked a room. The gate now reads the transcript: a name, price and dates spoken by the agent, followed by the caller agreeing to *that*.
+The booking tool trusted a flag the model filled in to say the summary had been read back. In 4 of 7 attempts it claimed a confirmation the caller never gave; in one, a "yes" to an email spelling booked a room. The gate now reads the transcript like a name, price and dates spoken by the agent, followed by the caller agreeing to *that*.
 
 <L s="measured" n="7 attempts" src="readme" />
 
 ### A prompt rule is not a boundary
 
-With the guest's name in the prompt behind a "do not reveal" rule, the agent volunteered it on the first turn in 4 of 5 replays. Now the lookup tool withholds the name, and code releases it only after identity is confirmed: 0 of 5. Four actions are gated in code the same way; tone stays in the prompt.
+With the guest's name in the prompt behind a "do not reveal" rule, the agent volunteered it on the first turn in 4 of 5 replays. Now the lookup tool withholds the name, and code releases it only after identity is confirmed: 0 of 5. Four actions are gated in code the same way while tone stays in the prompt.
 
 <L s="measured" n="5 replays" src="readme" />
 
 ### My own instrument was lying
 
-The trace reader read one 100-row page and labelled it with the whole period I'd asked for. It reported a 3× slowdown that never happened, and it had also produced a "27% faster" claim, which I withdrew. Fixed and split by turn type, the honest picture is this: replies with no tool were already inside budget, and replies with a tool were not. The real win came from a per-call cache: a repeat booking lookup went from 1,073 ms to 0.4 ms.
+The trace reader read one 100 row page and labelled it with the whole period I'd asked for. It reported a 3× slowdown that never happened, and it had also produced a "27% faster" claim, which I withdrew. Fixed and split by turn type, the honest picture is this: replies with no tool were already inside budget, and replies with a tool were not. The real win came from a per-call cache: a repeated booking lookup went from 1,073 ms to 0.4 ms.
 
 <L s="withdrawn" n="replaced by the per-turn-type figures" src="readme" /> · <L s="measured" n="15 → 21 lookups" src="readme" />
 
 ### Same test, opposite winner
 
-OpenAI is retiring the model Ovela ran on, so I benchmarked the replacement the careful way: the real 9,000-token prompt, all twelve tools, whole conversations with lookups and interruptions. From my laptop in Melbourne the new model was clearly faster — 1,234 ms to first token against 1,514 ms. I nearly shipped it on that.
+OpenAI is retiring the model Ovela ran on, so I benchmarked the replacement the careful way: the real 9,000-token prompt, all twelve tools, whole conversations with lookups and interruptions. From my laptop in Melbourne the new model was clearly faster: 1,234 ms to first token against 1,514 ms. I nearly shipped it on that.
 
 The calls don't run in Melbourne. Re-run on the US server that actually answers the phone, the order reversed: 636 ms against 474 ms. The server's figure for the old model matched what live calls had already recorded, so that is the one I trust. The replacement's fast tier closed the gap to 535 ms, and that is what runs now.
 
-I still can't fully explain why the order reversed. What I can say is that my desk was adding half a second to a second of distance to every request, and it wasn't landing equally on both models — the noise was bigger than the difference I was trying to measure.
+I still can't fully explain why the order reversed. What I can say is that my desk was adding half a second to a second of distance to every request, and it wasn't landing equally on both models. So the noise was bigger than the difference I was trying to measure.
 
 <L s="measured" n="~400 requests per model on the laptop, ~250 on the server · median" src="readme" />
 
@@ -56,7 +56,7 @@ I still can't fully explain why the order reversed. What I can say is that my de
 
 ### The goodbye nobody said
 
-Swapping the model changed behaviour the code had silently depended on. The new one ended calls by calling `hang_up_call` without saying anything first — it put the goodbye inside the tool's arguments, where nothing spoke it. The turn then sat for up to 15 s waiting on audio nobody had asked for, and when the caller said "Hello?" into that silence, it cancelled the hang-up mid-request. Three goodbyes, and the caller hung up first.
+Swapping the model changed behaviour the code had silently depended on. The new one ended calls by calling `hang_up_call` without saying anything first then it put the goodbye inside the tool's arguments, where nothing spoke it. The turn then sat for up to 15 s waiting on audio nobody had asked for, and when the caller said "Hello?" into that silence, it cancelled the hang-up mid-request. Three goodbyes and the caller hung up first.
 
 Now the code speaks the tool's own farewell when the model didn't, a hang-up can't be cancelled by whatever the caller says next, and a turn with no words in it ends at once.
 
@@ -64,7 +64,7 @@ Now the code speaks the tool's own farewell when the model didn't, a hang-up can
 
 ### What did the caller actually hear?
 
-Text is generated faster than it's spoken. When a caller cuts in, the model has "said" words the caller never heard. Ovela keeps only the part that played. And "mhmm" isn't an interruption.
+Text is generated faster than it's spoken. When a caller cuts in, the model has "said" words the caller never heard. System keeps only the part that played not generated. And "mhmm" isn't an interruption.
 
 The count this section used to quote was wrong, and I found out the same way I find out most things. A two-channel recording of one call showed the caller spoke over the agent **once**; the log had counted seven. The other six fired after the agent had already finished — the caller answering its question, inside a two-second margin left over from an older design. The margin is now 0.8 s, sized to the 0.24–0.87 s audio delay I measured, and the fix is written and tested but not yet confirmed on a live call.
 
@@ -76,7 +76,7 @@ The count this section used to quote was wrong, and I found out the same way I f
 
 ### Silence while a tool runs
 
-When the model reached for a tool, the caller heard nothing for 2.3–4.3 s. Now code says a short line first ("Let me have a look."), and the caller hears a first word in 0.7–0.8 s. The answer itself still waits on the tool; the silence is gone.
+When the model reached for a tool, the caller heard nothing for 2.3–4.3 s. Now code says a short line first ("Let me have a look."), and the caller hears a first word in 1s median. The answer itself still waits on the tool but the silence is acknowledged.
 
 <L s="measured" n="4 tool turns before, 2 after" src="readme" />
 
@@ -88,11 +88,10 @@ When the model reached for a tool, the caller heard nothing for 2.3–4.3 s. Now
 
 ## What it still doesn't do
 
-- **Under a second from the caller’s last word, on real calls.** It’s 1.5–1.7 s today, measured from the call recordings. About 0.8 s of that is end-of-turn detection and the round trip to a US server before the model starts, so a faster model alone can’t close it.
+- **Under a second from the caller’s last word, on real calls.** It’s 0.9–1.7 s today with 1s median, measured from the call recordings. About 0.8 s of that is end-of-turn detection and the round trip to a US server before the model starts, so a faster model alone can’t close it.
 - **Identity is confirmed on one matching word of the name**, so a relative sharing the surname passes.
 - **Gates judge agreement from word patterns**, so an unusual "yes" can be refused.
 - **No caller has ever been a stranger.** Every call is mine, or a script's.
-- **One tenant, no real customers.**
 
 ## Sources
 
