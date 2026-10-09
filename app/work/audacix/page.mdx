@@ -37,7 +37,7 @@ The table below is arithmetic I worked out afterwards. It explains why the choic
 
 The last two rows are why it worked. Qwen at 8-bit has bigger weights than Llama at 4-bit, yet leaves more room for context: its memory per token of context is less than half Llama's, with 4 key-value heads to Llama's 8 and 28 layers to 32. Better precision cost no context.
 
-I stress-tested the ones that fit. The 14B loaded but barely ran. Among the rest I looked at speed, at how well each stayed inside the assistant's scope and followed its output format, and at how it handled the code and reasoning that web-security questions need. On speed the two came out about equal, so the choice came down to behaviour and room. There was no written behaviour benchmark behind it, and next time I'd build that test set first. I made the switch in October 2025, set its context window below the maximum to keep memory headroom, and tuned vLLM's settings for latency.
+I stress-tested the ones that fit. The 14B loaded but barely ran. Among the rest I looked at speed, at how well each stayed inside the assistant's scope and followed its output format, and at how it handled the code and reasoning that web-security questions need. On speed the two came out about equal, so the choice came down to behaviour and room. There was no written behaviour benchmark behind it, and next time I'd build that test set first. I made the switch by setting its context window below the maximum to keep memory headroom, and tuned vLLM's settings for latency.
 
 So that speed was measured rather than felt, the assistant logs time to first token and tokens per second on every answer.
 
@@ -49,9 +49,9 @@ The model is treated as untrusted. A jailbreak check runs on every question befo
 
 The catch: the open-source guardrails framework we used checked a finished answer, not a stream. Waiting for the whole answer meant a blank screen, and on the CPU we had, the topic check took tens of seconds per answer. A second GPU for the checks was the obvious fix, and I didn't have one.
 
-So I streamed the answer and checked it in pieces. Text is held back until a few sentences are complete, which gives the small classifier models enough context to judge. Each piece is checked in the background while the next one streams, and the stream stops the moment a piece fails. People see an answer start almost at once. The trade-off, chosen on purpose: a violation can surface a sentence or two in, rather than never being shown at all.
+So I streamed the answer and checked it in pieces. Text is held back until a few sentences are complete, which gives the small classifier models enough context to judge. Each piece is checked in the background while the next one streams, and the stream stops the moment a piece fails. People see an answer start almost at once. The trade-off was chosen on purpose: a violation can surface a sentence or two in, rather than never being shown at all.
 
-Before release I ran it against more than 140 adversarial prompts, from prompt injection and role-play to emotional manipulation and multi-step attacks, and checked each refusal held.
+Before release I ran it against more than 140 adversarial prompts, from prompt injection and role-play to emotional manipulation, persuasion and multi-step attacks, and checked each refusal held.
 
 <L s="first-hand" n="pass rates not recorded" src="account" />
 
@@ -81,7 +81,7 @@ Still in the live product, although some layouts have changed since:
 ## Sources
 
 <ul className="sources">
-  <Src id="account">My own account of the internship, checked against the code where I could. The code is Audacix's and isn't public.</Src>
+  <Src id="account">Internal to Audacix</Src>
   <Src id="fit">Model weights: the published file sizes on Hugging Face for each model and precision (Llama 3.1 8B at 8-bit is computed, as 1 byte per weight plus 16-bit embeddings). Room for context: about 12.5 GB usable after runtime overhead, minus the weights, divided by the model's key-value cache per token (Llama 3.1 8B 128 KB, Qwen 2.5 7B 56 KB, Qwen 2.5 14B 192 KB, at 16-bit). It is shared by everyone asking at once.</Src>
   <Src id="live" href="https://scan.cyberchief.ai/noSSL/">The live scanner, where the assistant runs on the scan results</Src>
 </ul>
