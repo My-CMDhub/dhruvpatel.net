@@ -4,7 +4,8 @@
 //
 // `ink`: the brand colour is near-black and would vanish on the dark theme, so there it takes the
 // chip's text colour instead. `img`: a full-colour file, drawn as it is rather than tinted.
-// A chip with no entry here simply shows its text.
+// A chip with no entry here simply shows its text; in a case header's chain it gets a two-letter
+// monogram instead.
 
 export type Tech = { src: string; color?: string; ink?: boolean; img?: boolean }
 
@@ -53,4 +54,10 @@ export const tech: Record<string, Tech> = {
   vLLM: { src: '/tech/vllm.svg' },
   'Qwen 2.5': { src: '/tech/qwen.svg' },
   'Guardrails AI': { src: '/tech/guardrails.png', img: true },
+
+  LangGraph: { src: '/tech/langgraph.svg', color: '#7FC8FF' },
+  WebGPU: { src: '/tech/webgpu.svg', color: '#005A9C' },
+  // Their own marks, from the owner on 19 Oct 2026. gemma-plain.png is the same mark without the word.
+  TabPFN: { src: '/tech/tabpfn.png', img: true },
+  'Gemma 4': { src: '/tech/gemma.png', img: true },
 }

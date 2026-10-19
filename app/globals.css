@@ -102,6 +102,7 @@ img.ti { background: none; border-radius: 3px; }
   border-radius: 50%; background: var(--bg); border: 1px solid var(--rule); box-shadow: 0 0 0 2px var(--bg);
   color: var(--muted); transition: margin .25s ease, transform .2s ease; }
 .chain li .ti { width: 16px; height: 16px; }
+.ti-txt { font: 600 10.5px/1 var(--f-mono); letter-spacing: -.02em; color: var(--ink2); }
 .chain:hover li { margin-left: -2px; }
 .chain li:hover { transform: translateY(-2px); z-index: 2; }
 .chain-tip { position: absolute; top: calc(100% + 8px); left: 50%; transform: translate(-50%, -3px); white-space: nowrap;

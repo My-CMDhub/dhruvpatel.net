@@ -12,13 +12,16 @@ export function Mark({ name, size = 13 }: { name: string; size?: number }) {
   )
 }
 
+/** "TabPFN" → "TP", "Gemma 4" → "G4": its capitals and digits, first two. */
+const monogram = (n: string) => (n.match(/[A-Z0-9]/g) ?? [n[0]]).slice(0, 2).join('')
+
 /** A case page's stack as a chain of overlapping marks. Each name appears on hover, and a screen
  *  reader hears the whole list. */
 export function StackChain({ stack }: { stack: string[] }) {
   return (
     <ul className="chain" aria-label={`Built with ${stack.join(', ')}`}>
       {stack.map((n) => (
-        <li key={n}><Mark name={n} size={16} /><span className="chain-tip" aria-hidden="true">{n}</span></li>
+        <li key={n}>{tech[n] ? <Mark name={n} size={16} /> : <b className="ti-txt" aria-hidden="true">{monogram(n)}</b>}<span className="chain-tip" aria-hidden="true">{n}</span></li>
       ))}
     </ul>
   )

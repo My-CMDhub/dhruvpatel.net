@@ -12,7 +12,7 @@ export const personas: { id: PersonaId; pick: string; says: string }[] = [
   { id: 'founder', pick: 'a founder or CTO', says: 'Then start with Ovela. It answers a real phone line in about a second, and the page says what it still gets wrong.' },
   { id: 'engineer', pick: 'a software or AI engineer', says: 'Then Agent-OS is the one. The interesting bug isn’t the fast one.' },
   { id: 'pm', pick: 'a product manager', says: 'Then read the NOT YET line on each project first. That’s the honest half.' },
-  { id: 'recruiter', pick: 'a recruiter', says: 'Python, Swift, FastAPI, vLLM, AWS. Two engineering internships, three projects, every number labelled with its source.' },
+  { id: 'recruiter', pick: 'a recruiter', says: 'Python, Swift, FastAPI, vLLM, AWS. Two engineering internships, four projects, every number labelled with its source.' },
 ]
 
 export const pickOf = (id: PersonaId) => personas.find((p) => p.id === id)?.pick ?? personas[0].pick
@@ -33,6 +33,13 @@ export const forCase: Record<string, Partial<Record<PersonaId, string>>> = {
     engineer: 'Requests ran on the main thread, so one three-second action blocked everything behind it: 8,520 ms of stalls in a single planner run, and a ping sent behind that action took 2,864 ms. Off the main thread it’s 5 ms. Then the part I didn’t expect. The harness’s own approval panel had been safe only because it was too busy to answer; once it wasn’t, a caller could have pressed Remove on one of its own rules.',
     pm: 'The feature is “an AI can use your Mac”. The product question is “how do I stop it”. The one thing the AI can’t touch is the panel you’d use to stop it — and that guarantee used to be an accident of timing, which is a bad thing for a guarantee to be. It’s a rule now. A model drives it now — a voice model for single steps, a Claude loop for longer goals — and both go through the same refusal layer as everything else.',
     recruiter: 'A macOS harness an AI model operates the desktop through: a voice model for single steps, a Claude loop for longer goals, and a safety layer between them and the screen. Swift, macOS Accessibility API, OpenAI Realtime, Gemini Live, Claude; open source, forked from farzaa/clicky. A request queued behind a three-second action: 2,864 ms → 5 ms.',
+  },
+  'no-show-desk': {
+    look: 'A small motel’s morning, done by a desk that never sleeps: who probably won’t turn up, and a short message to check with them. The interesting part is what the model is not allowed to do.',
+    founder: 'An empty room found at 8 a.m. can be resold; found at 10 p.m. it’s lost. It ranks the next three days of guests from the motel’s own bookings and drafts one message each for the few worth asking. Nothing goes out until the owner presses send.',
+    engineer: 'The model never works out a fact. Code computes every date, night and total, a checker compares each draft with the booking, and the owner’s own edits are checked as they type. 13 of 100 drafts were wrong before; 0 after.',
+    pm: 'Read the risk-line section: a fixed 50% line quietly flagged nobody on 2 of 30 mornings. The line that shipped is the one that never goes silent and still catches most cancellations.',
+    recruiter: 'Applied ML and agent design, built solo. Python, FastAPI, LangGraph, TabPFN, Gemma 4 in the browser on WebGPU. Wrong facts in messages 13 / 100 → 0 / 100; 111 of 172 cancellations flagged in advance on replayed data.',
   },
   capstone: {
     look: 'A checkout that takes Ethereum. A payment that arrives a fraction short is still short, and working out how short counts as short turned out to be the whole project.',

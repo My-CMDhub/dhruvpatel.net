@@ -1,0 +1,102 @@
+import { scenes } from '@/data/figures'
+
+export const metadata = { title: 'No-Show Desk', description: 'A morning list for small motels: the guests most likely not to turn up, and a checked message for each, sent only when the owner says so.' }
+export const s = scenes.find((x) => x.slug === 'no-show-desk')
+
+<CaseHead
+  title="No-Show Desk"
+  slug="no-show-desk"
+  result="Every morning, a small motel learns which guests probably won't turn up, with a checked message for each that waits for the owner."
+  more="At 8 a.m. it ranks the next three days of arrivals by how likely each guest is to cancel, learned from the motel's own past bookings. For the few worth asking, it drafts a message, checks every date and price, and sends nothing until the owner says so."
+  meta="Built from real public hotel bookings (2015–17); the guest names are made up"
+  stack={['Python', 'FastAPI', 'LangGraph', 'TabPFN', 'Gemma 4', 'WebGPU']}
+  links={[
+    { text: 'Live demo', href: 'https://no-show-desk.onrender.com' },
+    { text: 'Source', href: 'https://github.com/My-CMDhub/no-show-desk' },
+    { text: 'Film (55 s)', href: 'https://www.youtube.com/watch?v=p-uR-SlR874' },
+  ]}
+/>
+
+<Media src="/media/no-show-desk-film.mp4" poster="/media/no-show-desk-poster.jpg" alt="The No-Show Desk film: the morning list, a message drafted and checked, the owner's wrong edit refused, then sent" caption="55 seconds, built in code from the product's real screens and numbers." />
+
+## How it was earned
+
+### I assumed a small model could read a booking
+
+Handed the raw booking record, Gemma got a date or the total wrong in 13 of 100 messages (16 problems in all:
+11 dates, 3 amounts, 2 night counts). So code works out every date, night count and
+total, the model only puts them into words, and a checker compares each draft with the booking before the owner
+sees it. 0 of 100.
+
+<L s="measured" n="100 drafts each way" src="drafts" />
+
+### My checker was wrong first
+
+Its first count said 25 bad drafts against 1. I read all 26 flagged drafts, and 13 were correct, written in
+formats it couldn't read yet ("2/13", "Feb 23"). I fixed the checker with tests first, then rescored the same
+stored drafts rather than generating new ones, and both counts are in the results.
+
+<L s="measured" n="26 flagged drafts read" src="drafts" />
+
+### My own instruction leaked into a message
+
+The first wording told the model to mention the free-cancel date "if you are given one". In 6 test drafts, one
+invented a date, one wrote "[Insert Date Here]" and one copied my instruction into the message. Now code decides
+whether cancellation is mentioned at all, and the checker catches placeholders and copied instructions.
+
+<L s="measured" n="6 drafts" src="drafts" />
+
+### Half a minute per message isn't a product
+
+Through Ollama on my 8 GB Mac, a message took a median 31.4 s. The same model family in the browser, on the
+graphics chip, took 3.25 s (90th percentile 4.87 s) on the same 100 bookings and seeds, still 0 wrong. The cost moved to a
+one-time 2 GB download and about 10 s to load it from disk.
+
+<Ledger rows={s.ledger} />
+
+<L s="measured" n="median of 100 each" src="browser" />
+
+### A risk line can quietly flag nobody
+
+At a 50% line, 2 of 30 replayed mornings flagged no one. A fixed "top 5" never went quiet but caught only 84 of
+172 cancellations. The 30% line flagged 3–13 guests a morning and caught 111 of 172, against about 64 for the
+same number picked at random. Its percentages mean what they say: guests given 30–40% cancelled 32% of the time.
+
+<L s="measured" n="30 mornings, 600 guests" src="thresholds" />
+
+### Was the fancy model worth it?
+
+Against rules an owner could apply by hand, the best caught 99 of 172. A plain logistic regression caught 106.
+TabPFN caught 111. It beat logistic regression in all 9 history-size runs, but only by about 0.02–0.03
+ROC-AUC, including on small, motel-sized histories (0.721 against 0.699 at 300 bookings).
+
+<L s="measured" n="same 30 mornings; 3 histories per size" src="baselines" />
+
+### The owner's edits are checked too
+
+If the owner changes the message, the same checker runs as they type: put in a wrong total and the desk says so
+before anything goes. The owner can still send anyway; it's their message.
+
+## What stands
+
+- A morning list ranked by risk, with the reason for each guest, sent to Telegram.
+- Every fact in a message worked out in code and checked before the owner sees it, including their own edits.
+- Two pauses an agent can't skip: the owner chooses to draft, then chooses to send.
+- The model runs on a laptop or in a browser tab. TabPFN's v2 weights on the same Mac caught the same 111 of 172.
+
+## What it still doesn't do
+
+- **It hasn't run on a live motel's bookings.** It reads a public dataset, so the morning Telegram message has only carried demo data; the one on my phone was sent by a test script.
+- **No booking system is connected.** Bookings come from a file, not a motel's booking software.
+- **Scoring leaves the computer:** TabPFN runs through Prior Labs' API. The hosted demo replays saved scores rather than scoring live.
+- **Phones get a message written earlier:** the 2 GB browser model is for computers.
+- **Sending is a mock:** approved messages go to a file.
+
+## Sources
+
+<ul className="sources">
+  <Src id="drafts" href="https://github.com/My-CMDhub/no-show-desk/blob/main/results/drafts.md">results/drafts.md and drafts_reconfirm.md: the 100 + 100 drafts, the checker's first count and the leaked instruction</Src>
+  <Src id="browser" href="https://github.com/My-CMDhub/no-show-desk/blob/main/results/drafts_browser.md">results/drafts_browser.md: Ollama against the browser, same 100 bookings and seeds</Src>
+  <Src id="thresholds" href="https://github.com/My-CMDhub/no-show-desk/blob/main/results/thresholds.md">results/thresholds.md and baselines.md: 30 replayed mornings, the lines, the calibration</Src>
+  <Src id="baselines" href="https://github.com/My-CMDhub/no-show-desk/blob/main/results/logistic.md">results/logistic.md and small_history.md: TabPFN against simpler models</Src>
+</ul>
