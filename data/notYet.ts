@@ -15,4 +15,5 @@ export function extractNotYet(md: string): string | null {
 export const LIVE_READMES: Record<string, string> = {
   ovela: 'https://raw.githubusercontent.com/My-CMDhub/Ovela-AI/HEAD/README.md',
   'agent-os': 'https://raw.githubusercontent.com/My-CMDhub/Agent-OS/HEAD/README.md',
+  'no-show-desk': 'https://raw.githubusercontent.com/My-CMDhub/no-show-desk/HEAD/README.md',
 }

@@ -1,11 +1,13 @@
-# Checks and builds every push. On main it also deploys, and a morning run picks up any
-# NOT YET line changed in the Ovela or Agent-OS README. AWS access is a short-lived role
-# (GitHub OIDC) that can only write this bucket and invalidate this distribution.
+# Checks and builds every push. On main it also deploys. An hourly run picks up any NOT YET line
+# changed in a project README, and deploys only if /profile.json would change (it carries those
+# lines and the month). Every deploy then asks the GitHub profile to redraw from the new
+# /profile.json, so the two never disagree for long. AWS access is a short-lived role (GitHub OIDC)
+# that can only write this bucket and invalidate this distribution.
 name: site
 on:
   push:
   pull_request:
-  schedule: [{ cron: '0 20 * * *' }] # 06:00 in Melbourne (AEST)
+  schedule: [{ cron: '41 * * * *' }] # hourly, off the top of the hour, which GitHub runs late
   workflow_dispatch:
 concurrency:
   group: site-${{ github.ref }}
@@ -14,6 +16,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions: { contents: read, id-token: write }
+    env: { PROFILE_TOKEN: '${{ secrets.PROFILE_TOKEN }}' }   # job-level, so a step's `if` can see it
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -21,14 +24,29 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm run build
-      - if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+      - if: github.event_name == 'schedule'
+        id: same
+        name: anything new since the live site?
+        run: |
+          if curl -fsS https://dhruvpatel.net/profile.json | cmp -s - out/profile.json; then
+            echo "skip=1" >> "$GITHUB_OUTPUT"; echo "unchanged: not deploying"
+          fi
+      - if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && !steps.same.outputs.skip
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::679607640499:role/dhruvpatel-net-deploy
           aws-region: ap-southeast-2
-      - if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+      - if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && !steps.same.outputs.skip
         name: deploy
         run: |
           aws s3 sync out/ s3://dhruvpatel-net-site --delete --exclude "*.html" --exclude "*.txt" --cache-control "public,max-age=31536000,immutable"
           aws s3 sync out/ s3://dhruvpatel-net-site --delete --exclude "*" --include "*.html" --include "*.txt" --cache-control "public,max-age=0,must-revalidate"
           aws cloudfront create-invalidation --distribution-id ET9C9KS24OXHW --paths "/*"
+      # PROFILE_TOKEN: a fine-grained token for My-CMDhub/My-CMDhub only, "Actions: read and write".
+      # Without it this step is skipped and the profile catches up on its own hourly run.
+      - if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && !steps.same.outputs.skip && env.PROFILE_TOKEN != ''
+        name: tell the GitHub profile to redraw
+        run: |
+          sleep 60   # let the CloudFront invalidation land before the profile fetches /profile.json
+          curl -fsS -X POST -H "Authorization: Bearer $PROFILE_TOKEN" -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/My-CMDhub/My-CMDhub/actions/workflows/transmit.yml/dispatches -d '{"ref":"main"}'

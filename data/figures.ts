@@ -21,6 +21,8 @@ export const site = {
     // A quiet admission, linked to the one case where the order was reversed (its card says "Deployed first, understood second").
     aside: { text: 'Once, at Audacix, it went the other way round.', href: '#audacix' },
   },
+  // The GitHub profile's one line (it reads it from /profile.json): the hero sentence, said in one breath.
+  tagline: 'I build the systems around the model, and measure them before I trust them.',
   positioning:
     'Backend and applied-AI engineer. I build the software around an AI model: the rules it must follow, the person using it, what it costs to run to meet reality, and I measure it before I trust it.',
   // In his own words. Kept to two sentences: the second one is the trade-off, and it is the half
@@ -54,6 +56,7 @@ export type Scene = {
   name: string
   kind: string
   stack?: string[]   // at most six, and only what the work actually used
+  repo?: string      // its GitHub repo, where the GitHub profile's card links
   org?: { name: string; href: string; logo: string }   // employers only: their own site, their own mark
   what: string
   from: string
@@ -68,6 +71,7 @@ export type Scene = {
 export const scenes: Scene[] = [
   {
     slug: 'ovela',
+    repo: 'Ovela-AI',
     group: 'project',
     name: 'Ovela',
     kind: 'a voice receptionist on a real phone line',
@@ -88,6 +92,7 @@ export const scenes: Scene[] = [
   },
   {
     slug: 'agent-os',
+    repo: 'Agent-OS',
     group: 'project',
     name: 'Agent-OS',
     kind: 'a harness built for an AI model to operate a Mac',
@@ -109,6 +114,7 @@ export const scenes: Scene[] = [
   },
   {
     slug: 'no-show-desk',
+    repo: 'no-show-desk',
     group: 'project',
     name: 'No-Show Desk',
     kind: 'a morning list for small motels: who probably won’t turn up, and a message to check',
@@ -119,7 +125,7 @@ export const scenes: Scene[] = [
     ruler: { scale: 'linear', max: 15, unit: '', from: 13, to: 0 },
     label: { status: 'measured', note: '100 drafts each way · a second run of 100, read by hand, also 0', href: '/work/no-show-desk/#src-drafts' },
     motto: 'Code works out the facts. The model only words them.',
-    notYet: 'live motel bookings, with the morning Telegram message on them',
+    notYet: 'live motel bookings, and the morning message on them',
     ledger: [
       { tag: 'SAW', text: 'Given the raw booking, the small model writing the message got a date or the total wrong.', value: '13 / 100', sub: 'drafts wrong' },
       { tag: 'CHANGED', text: 'Code works out every date, night and total; the model only puts them in words, and a checker compares each draft with the booking before the owner sees it.', value: '0 / 100', sub: 'drafts wrong' },
@@ -131,6 +137,7 @@ export const scenes: Scene[] = [
   },
   {
     slug: 'capstone',
+    repo: 'Blockchain-based-Industry-Project',
     group: 'project',
     name: 'Capstone',
     kind: 'an Ethereum payment gateway for a real client · overall winner, IMPACT 2025 capstone showcase',
@@ -256,3 +263,11 @@ export const journey = {
   ahead: 6,
   says: 'Studied at Melbourne Institute of Technology from November 2022 to June 2025, winning its IMPACT showcase in June 2025. Internships at Audacix from July to October 2025 and Silverpond from May to August 2026. Building Ovela and Agent-OS now.',
 }
+
+// Things I believed until I measured them. The GitHub profile header strikes each one through and
+// shows what the measurement said. Each is public: a commit, a results file, or a published case.
+export const retractions: { was: string; is: string; why: string; href: string }[] = [
+  { was: 'Chrome: 15% actionable', is: '66%', why: 'my own scan counted one button four times', href: 'https://github.com/My-CMDhub/Agent-OS/commit/6488e06d7049eccc61761c252117112ab60cf9d2' },
+  { was: 'a small model can read a booking', is: '13 / 100 drafts wrong', why: 'so code works out the facts now', href: 'https://dhruvpatel.net/work/no-show-desk/' },
+  { was: 'Ovela’s calls all reported success', is: '6 bugs said otherwise', why: 'one agent said goodbye and never hung up', href: 'https://dev.to/mycmdhub/six-silent-bugs-in-a-voice-ai-phone-line-392' },
+]
