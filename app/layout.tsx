@@ -59,7 +59,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <a href="/blog/">Writing</a>
               <a className="ext" href={site.github} {...ext(site.github)}>GitHub ↗</a>
               <a className="ext" href={site.linkedin} {...ext(site.linkedin)}>LinkedIn ↗</a>
-              <a href={`mailto:${site.email}`}>Email</a>
             </nav>
           </header>
           <main id="main">{children}</main>
