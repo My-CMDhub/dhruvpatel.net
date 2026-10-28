@@ -1,0 +1,142 @@
+import { posts } from '@/data/posts'
+import { ReadingExperienceProvider, ReadingJourney, Takeaway, MemoryMoment, MemoryGreeting } from '@/components/ReadingExperience'
+
+export const p = posts.find((x) => x.slug === 'privacy-now-with-perfect-memory')
+export const metadata = { title: p.title, description: p.dek }
+
+<ReadingExperienceProvider>
+<article className="post">
+
+<MemoryGreeting />
+<ReadingJourney />
+
+<header className="post-head">
+  <p className="post-meta">{p.when} · {p.minutes} min read</p>
+  <h1>{p.title}</h1>
+  <p className="post-dek">Notes from October 2026, written by someone who is still figuring it out.</p>
+</header>
+
+
+<h2 id="the-birthday">The birthday</h2>
+
+When I was a teenager, every website wanted my date of birth, and my dad had one rule: lie.
+
+So I did. For years, a small set of accounts believed I was born on a day I wasn't. It felt like a security practice. Looking back, it was mostly a ritual, the digital version of not telling strangers where you live.
+
+Then I started sharing my work online, and the fake birthday started to feel silly. It's a date. Thousands of people share it. Half the internet uses theirs as a password anyway, which is a separate problem.
+
+So I stopped faking it. Nothing happened. And that's the point I keep coming back to: the thing I was protecting was never the thing that mattered.
+
+<Takeaway>The thing I was protecting was never the thing that mattered.</Takeaway>
+
+<Media src="/blog/privacy/01-birthday.png" alt="xkcd: Password Strength" caption="“Half the internet uses theirs as a password anyway.” Looks like a password joke; really it’s about how bad we are at guessing what actually protects us. (xkcd, CC BY-NC 2.5)" />
+
+<h2 id="the-supervisor">The supervisor</h2>
+
+In my first internship, my supervisor had a rule too. Anything about our website security scans stayed on our own machines. Not on a third-party tool, not in someone else's cloud, however convenient.
+
+Then the rule met reality. Our own hardware was slow. The business wanted a chat agent that answered faster, held more context, and had proper guardrails and boundaries, the standard any assistant is expected to meet now. Local machines could keep the data private, or make the agent good, but not both.
+
+I remember what I told him, because it's the same thing I keep telling myself: sooner or later you need your own infrastructure, your own Arc Reactor, like Tony Stark. Or you run on someone else's compute, set privacy aside, keep security in your own hands, and build a trust that can't break.
+
+It landed with him. Not because it was clever, but because there's no third option. You either own the power, or you trust whoever does.
+
+<Takeaway>You either own the power, or you trust whoever does.</Takeaway>
+
+Two rules from two people who didn't know each other. My dad's was about hiding a fact. My supervisor's was about choosing who gets to hold a fact, and then discovering that the choice has a price tag. Only one of them aged well, and even that one comes with an electricity bill.
+
+<Media src="/blog/privacy/02-supervisor.jpg" alt="Tony Stark: with a box of scraps" caption="Your own Arc Reactor line, made literal. Owning your own power is heroic, slow and expensive. (Marvel)" />
+
+<h2 id="people-forget-agents-dont">People forget. Agents don't.</h2>
+
+Here is the part I can't stop thinking about.
+
+If I tell a friend something private, the information decays. They forget the details by next week, the exact words by next month. Human memory is a terrible database, and for privacy that has always been a feature.
+
+If I tell an agent the same thing, it keeps a perfect copy. Timestamped, searchable, and sitting in a system that only has to be opened once. The risk isn't that the agent gossips. It's that its memory outlives every intention I had when I said it.
+
+<Takeaway>The risk isn’t that the agent gossips. It’s that its memory outlives every intention I had when I said it.</Takeaway>
+
+We spent twenty years worrying about what we post. The bigger shift is what we *say near* things that remember.
+
+<Media src="/blog/privacy/03-memory.png" alt="HAL 9000 eye" caption="“I’m sorry, Dave. I’m afraid I can’t forget that.” A film joke at first glance; the line is your whole section. (Cryteria / Wikimedia Commons, CC BY 3.0)" />
+
+<h2 id="october-briefly">October, briefly</h2>
+
+This month had a name on social media: "Black October". Some of the coverage was louder than the facts, so here is what actually checks out:
+
+- **A Signal bug** in its calling library could, in theory, let someone on a call flood it so your hang-up never registered, leaving the mic (possibly the camera) on. It was patched in September, the public demo was a simulation, and there were no known attacks. The scary part isn't that it happened. It's that the most trusted messenger we have needed a fix for "hanging up".
+- **Meta Muse's shared chats** used a guessable link pattern. Researchers found about 6,800 of them through public DNS records, including loan applications, revenue reviews and interview notes. Meta paused sharing.
+- **A critical PHP flaw** took sites offline within hours of being disclosed. Several large US banks also started restricting AI agents after finding unauthorised ones inside customer accounts.
+
+<Takeaway>The scary part isn’t that it happened. It’s that the most trusted messenger we have needed a fix for “hanging up”.</Takeaway>
+
+None of this is "AI swarms hacking half the internet", which is what some headlines said. But all of it rhymes.
+
+<Media src="/blog/privacy/04-october.png" alt="This is fine comic" caption="The dog sipping coffee in the burning room. Black October: holes found faster than anyone can close them, and everyone calm. (KC Green, Gunshow)" />
+
+<h2 id="generation-got-cheap-checking-didnt">Generation got cheap. Checking didn't.</h2>
+
+The common thread isn't privacy, it's speed. Finding a hole, writing code, generating a convincing anything: all of it is getting cheaper by the month. Checking whether it's correct, safe, or fixed still runs at human speed.
+
+I see this in my own work every week. Building is fast. Proving it does what I think it does is where the time goes. The industry is learning the same lesson at a bigger scale: holes get found faster than people can verify and close them.
+
+Privacy used to fail because someone was careless. Now it also fails because nobody had time to check.
+
+<Takeaway>Privacy used to fail because someone was careless. Now it fails because nobody had time to check.</Takeaway>
+
+<h2 id="the-password-i-protected-and-the-key-i-didnt">The password I protected, and the key I didn't</h2>
+
+I'm building an AI agent that reads my own Mac screen and acts on it. One of the first rules I gave it: refuse password fields. Never type into them, never photograph them.
+
+It felt like a serious privacy decision. Then I looked at what a password field actually shows: dots. The agent was never going to read my password off the screen.
+
+What it *could* read was an API key sitting in a plain note. Ordinary text, no dots, fully visible. The thing I'd carefully hidden was already hidden. The thing that mattered was in the open.
+
+<Takeaway>The thing I’d carefully hidden was already hidden. The thing that mattered was in the open.</Takeaway>
+
+<Media src="/blog/privacy/05-password.png" alt="Thor incognito" caption="“Not when I do this.” Guarding dots in a password field while the raw API key sat in plain text. (Marvel)" />
+
+And here is the part that made me laugh. The agent that can see that key runs on a model from the same company that issued the key. If it reads my key, the key is, in a sense, just going home.
+
+At that point there's nothing left to hide. There's only trust.
+
+<h2 id="sci-fi-didnt-predict-this-part">Sci-fi didn't predict this part</h2>
+
+Science fiction warned us about machines that watch. It mostly forgot to mention that we'd install them ourselves, because they're genuinely useful, and that the scary moment wouldn't be the robot turning on us. It would be the robot remembering everything, and someone else getting the login.
+
+A personal robot in your room is not a privacy question. It's a trust question with a microphone.
+
+<Takeaway>A personal robot in your room is not a privacy question. It’s a trust question with a microphone.</Takeaway>
+
+My working theory: the only fully private thing left is what never leaves my body. Everything else lives on someone's hardware, under someone's security, protected by someone's patch schedule. Believing otherwise isn't privacy. It's a nice feeling.
+
+<Media src="/blog/privacy/06-cat.png" alt="Privacy is a myth. I live here too." caption="The thing in your home that watches you, which you let in because you love it." />
+
+<h2 id="so-what-is-privacy-now">So, what is privacy now?</h2>
+
+I don't have a clean answer, and I'm suspicious of anyone who does this month.
+
+Maybe privacy used to mean "nobody knows". Maybe now it means "I trust whoever remembers".
+
+<Takeaway>Maybe privacy used to mean “nobody knows”. Maybe now it means “I trust whoever remembers”.</Takeaway>
+
+My dad was right to want me to hide something. He just picked the birthday.
+
+<Media src="/blog/privacy/07-now.png" alt="xkcd: Privacy Opinions" caption="A spectrum from “I’m being spied on” to “I’ll trade it all for a burrito”. Privacy is now a trade, not a wall. (xkcd, CC BY-NC 2.5)" />
+
+<MemoryMoment />
+
+<footer className="post-sources">
+
+### Sources
+
+- [Signal RingRTC flaw, CVE-2026-113380 (Privacy Guides)](https://www.privacyguides.org/news/2026/10/22/signal-vulnerability-allow-audio-and-possibly-video-to-continue-after-hanging-up/)
+- [Meta Muse share links disclosure (PCWorld)](https://www.pcworld.com/article/3267268/meta-just-reminded-us-that-sharing-ai-chats-is-a-terrible-idea.html)
+- [Banks restricting AI agents & "Black October"](https://marketcapof.com/news/black-october-hack-50-sites-ai-agent-restrictions/)
+- [xkcd: Password Strength & Privacy Opinions (CC BY-NC 2.5)](https://xkcd.com/936/)
+
+</footer>
+
+</article>
+</ReadingExperienceProvider>
